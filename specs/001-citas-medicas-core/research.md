@@ -108,8 +108,9 @@ Lista **cerrada**. Ningún otro paquete puede agregarse sin modificar este plan.
 
 ## R-12 — Estrategia de pruebas
 
-- **Decisión**: dos proyectos de prueba.
-  - `CitasMedicas.Domain.Tests` (unitarias, sin dependencias): validación de pacientes, rango y solapamiento de bloques (incluidos los contiguos), bloques en el pasado, transiciones de estado de la cita e inmutabilidad de *Atendida*.
-  - `CitasMedicas.Application.Tests`: servicios de aplicación con repositorios en memoria reales y `FixedTimeProvider`. Cubre los escenarios de aceptación de HU-01 a HU-04, la unicidad del DNI y la **reserva concurrente** (N tareas en paralelo sobre el mismo bloque, con exactamente 1 éxito).
-- **Justificación**: el usuario pide pruebas unitarias de dominio, y CE-001 a CE-003 exigen además cubrir la concurrencia y la atomicidad, que viven en Aplicación e Infraestructura.
-- **Alternativas**: pruebas HTTP con `WebApplicationFactory`. Se descartan porque requieren `Microsoft.AspNetCore.Mvc.Testing`, que no está declarado. Pueden añadirse en una feature futura.
+- **Decisión**: un único proyecto de pruebas `tests/CitasMedicas.Tests` organizado en carpetas:
+  - `Domain/` (unitarias, sin dependencias): validación de pacientes, rango y solapamiento de bloques (incluidos los contiguos), bloques en el pasado, transiciones de estado de la cita e inmutabilidad de *Atendida*.
+  - `Infrastructure/`: persistencia en memoria, unicidad de DNI, ordenación y la **reserva concurrente** (50 tareas en paralelo sobre el mismo bloque, con exactamente 1 éxito).
+  - `Application/`: servicios de aplicación con repositorios en memoria reales y `FixedTimeProvider`. Cubre los escenarios de aceptación de HU-01 a HU-04 y composición de citas.
+- **Justificación**: simplifica la estructura a un único proyecto `tests/CitasMedicas.Tests` manteniendo estricta separación de responsabilidades por carpetas y verificabilidad independiente con `dotnet test`.
+- **Alternativas**: dos proyectos de prueba separados (`Domain.Tests` y `Application.Tests`), descartado en favor de un único proyecto según la decisión de tasks.md. Pruebas HTTP con `WebApplicationFactory` se descartan porque requieren `Microsoft.AspNetCore.Mvc.Testing`.

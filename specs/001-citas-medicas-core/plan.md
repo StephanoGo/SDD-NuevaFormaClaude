@@ -114,18 +114,11 @@ src/
     └── Program.cs
 
 tests/
-├── CitasMedicas.Domain.Tests/             # → Domain
-│   ├── Patients/PatientTests
-│   ├── Scheduling/ScheduleSlotTests       # Rango, pasado, solapamiento, contiguos, reserva
-│   └── Appointments/AppointmentTests      # Transiciones Pending→Attended, inmutabilidad
-│
-└── CitasMedicas.Application.Tests/        # → Application, Infrastructure
-    ├── Support/FixedTimeProvider
-    ├── Patients/PatientServiceTests       # HU-01
-    ├── Scheduling/ScheduleServiceTests    # HU-02
-    └── Appointments/                      # HU-03, HU-04
-        ├── AppointmentServiceTests
-        └── ConcurrentReservationTests     # RF-021, CE-002
+└── CitasMedicas.Tests/                     # → Domain, Application, Infrastructure
+    ├── Support/                            # FixedTimeProvider, TestBuilders
+    ├── Domain/                             # Pruebas unitarias de dominio (Dni, Patient, TimeRange, ScheduleSlot, Appointment, TextNormalizer)
+    ├── Infrastructure/                     # InMemoryPatientRepositoryTests, InMemoryAppointmentRepositoryTests, ConcurrentReservationTests
+    └── Application/                        # PatientServiceTests (HU-01), ScheduleServiceTests (HU-02), AppointmentServiceTests (HU-03, HU-04, RF-026)
 ```
 
 **Decisión de estructura**: arquitectura limpia con dependencias que solo apuntan hacia el Dominio. Las interfaces de repositorio están en Application ([R-05](./research.md)). `CitasMedicas.Api` es el comando de ejecución definido en CLAUDE.md (`dotnet run --project src/CitasMedicas.Api`).
@@ -139,9 +132,9 @@ graph LR
     Infra --> App
     Infra --> Dom["CitasMedicas.Domain"]
     App --> Dom
-    DT["Domain.Tests"] --> Dom
-    AT["Application.Tests"] --> App
-    AT --> Infra
+    Tests["CitasMedicas.Tests"] --> Dom
+    Tests --> App
+    Tests --> Infra
 ```
 
 ---
