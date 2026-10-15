@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema Clínico de Citas Médicas</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/views.css">
+</head>
+<body>
+  <!-- Header / Navigation Bar -->
+  <header class="app-header">
+    <div class="header-container">
+      <a href="#" class="brand" aria-label="Ir al inicio de Citas Médicas">
+        <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+          <path d="M12 5v6"/>
+          <path d="M9 8h6"/>
+        </svg>
+        <span>Clínica Sanitas</span>
+      </a>
+
+      <nav class="nav-tabs" role="tablist" aria-label="Navegación del sistema">
+        <button type="button" class="nav-tab active" role="tab" id="tab-btn-agenda" aria-selected="true" aria-controls="view-agenda" data-target="view-agenda">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Agenda Médica
+        </button>
+        <button type="button" class="nav-tab" role="tab" id="tab-btn-reservas" aria-selected="false" aria-controls="view-reservas" data-target="view-reservas">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+          Pacientes y Reservas
+        </button>
+        <button type="button" class="nav-tab" role="tab" id="tab-btn-atencion" aria-selected="false" aria-controls="view-atencion" data-target="view-atencion">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          Atención Clínica
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="main-content">
+    
+    <!-- ====================================================================
+         VISTA 1: AGENDA MÉDICA
+         ==================================================================== -->
+    <section id="view-agenda" class="view-section active" role="tabpanel" aria-labelledby="tab-btn-agenda">
+      <div class="toolbar">
+        <div class="toolbar-title-group">
+          <h1>Agenda Médica</h1>
+          <p class="text-muted">Consulta y administra los bloques horarios de atención por profesional de la salud.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button type="button" class="btn btn-primary" id="btn-open-create-slot">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo Bloque
+          </button>
+        </div>
+      </div>
+
+      <!-- Filtros de agenda -->
+      <div class="agenda-filters">
+        <div class="form-group">
+          <label for="agenda-doctor-select" class="form-label">Médico Especialista</label>
+          <select id="agenda-doctor-select" class="form-select">
+            <!-- Cargado por JS con médicos predeterminados -->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="agenda-date-input" class="form-label">Fecha de Atención</label>
+          <input type="date" id="agenda-date-input" class="form-input">
+        </div>
+
+        <button type="button" class="btn btn-secondary" id="btn-refresh-agenda" style="align-self: flex-end;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Actualizar
+        </button>
+      </div>
+
+      <!-- Resumen del Médico Seleccionado -->
+      <div id="doctor-status-banner" style="margin-bottom: var(--spacing-4);"></div>
+
+      <!-- Contenedor de Bloques -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Bloques Horarios Registrados
+          </h2>
+          <span class="badge badge-available" id="agenda-slots-count">0 bloques</span>
+        </div>
+        <div class="card-body">
+          <div id="slots-container" class="slots-container">
+            <!-- Bloques o estado vacío renderizados por JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VISTA 2: PACIENTES Y RESERVAS
+         ==================================================================== -->
+    <section id="view-reservas" class="view-section" role="tabpanel" aria-labelledby="tab-btn-reservas">
+      <div class="toolbar">
+        <div class="toolbar-title-group">
+          <h1>Pacientes y Reserva de Citas</h1>
+          <p class="text-muted">Busca o da de alta pacientes clínicos y agenda su turno médico de forma atómica.</p>
+        </div>
+      </div>
+
+      <div class="booking-layout">
+        <!-- Columna Izquierda: Búsqueda y Registro de Paciente -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Gestión de Pacientes
+            </h2>
+            <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-new-patient">
+              + Nuevo Paciente
+            </button>
+          </div>
+          <div class="card-body">
+            
+            <!-- Panel: Formulario de Registro de Paciente (Oculto por defecto) -->
+            <div id="panel-new-patient" style="display: none; margin-bottom: var(--spacing-5); padding-bottom: var(--spacing-4); border-bottom: 1px solid var(--color-border);">
+              <h3 style="font-size: var(--font-size-base); margin-bottom: var(--spacing-3); color: var(--color-primary);">Registrar Nuevo Paciente</h3>
+              <form id="form-register-patient">
+                <div class="form-group">
+                  <label for="reg-patient-dni" class="form-label">DNI <span class="required">*</span></label>
+                  <input type="text" id="reg-patient-dni" class="form-input" maxlength="8" pattern="\d{8}" placeholder="8 dígitos numéricos" required>
+                  <div class="form-error-text" id="reg-patient-dni-error"></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-3);">
+                  <div class="form-group">
+                    <label for="reg-patient-firstname" class="form-label">Nombres <span class="required">*</span></label>
+                    <input type="text" id="reg-patient-firstname" class="form-input" placeholder="Ej. Juan Carlos" required>
+                  </div>
+                  <div class="form-group">
+                    <label for="reg-patient-lastname" class="form-label">Apellidos <span class="required">*</span></label>
+                    <input type="text" id="reg-patient-lastname" class="form-input" placeholder="Ej. Pérez Quispe" required>
+                  </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-3);">
+                  <div class="form-group">
+                    <label for="reg-patient-email" class="form-label">Correo Electrónico</label>
+                    <input type="email" id="reg-patient-email" class="form-input" placeholder="juan@ejemplo.com">
+                  </div>
+                  <div class="form-group">
+                    <label for="reg-patient-phone" class="form-label">Teléfono</label>
+                    <input type="tel" id="reg-patient-phone" class="form-input" placeholder="987654321">
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: var(--spacing-2); justify-content: flex-end; margin-top: var(--spacing-2);">
+                  <button type="button" class="btn btn-secondary btn-sm" id="btn-cancel-new-patient">Cancelar</button>
+                  <button type="submit" class="btn btn-primary btn-sm" id="btn-submit-patient">Guardar y Seleccionar</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Panel: Buscador Dual -->
+            <div id="panel-search-patient">
+              <div class="search-toggle-tabs" role="tablist">
+                <button type="button" class="search-tab-btn active" id="tab-search-dni" role="tab" aria-selected="true">Por DNI</button>
+                <button type="button" class="search-tab-btn" id="tab-search-lastname" role="tab" aria-selected="false">Por Apellidos</button>
+              </div>
+
+              <!-- Formulario búsqueda DNI -->
+              <form id="form-search-dni" style="display: flex; gap: var(--spacing-2); margin-bottom: var(--spacing-4);">
+                <input type="text" id="input-search-dni" class="form-input" maxlength="8" placeholder="Ingrese 8 dígitos de DNI" required>
+                <button type="submit" class="btn btn-primary" id="btn-search-dni">Buscar</button>
+              </form>
+
+              <!-- Formulario búsqueda Apellidos -->
+              <form id="form-search-lastname" style="display: none; gap: var(--spacing-2); margin-bottom: var(--spacing-4);">
+                <input type="text" id="input-search-lastname" class="form-input" placeholder="Mínimo 2 caracteres del apellido" required>
+                <button type="submit" class="btn btn-primary" id="btn-search-lastname">Buscar</button>
+              </form>
+
+              <!-- Resultados de búsqueda -->
+              <div id="patient-search-results">
+                <div class="empty-state">
+                  <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <div class="empty-state-title">Ningún paciente consultado</div>
+                  <div class="empty-state-description">Busca por DNI o apellidos para seleccionar al paciente que reservará la cita.</div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Columna Derecha: Formulario de Reserva -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Confirmación de Reserva
+            </h2>
+          </div>
+          <div class="card-body">
+            
+            <!-- Paciente Seleccionado -->
+            <div class="form-group">
+              <label class="form-label">Paciente Seleccionado</label>
+              <div id="selected-patient-display">
+                <div class="empty-state" style="padding: var(--spacing-4); border: 1px dashed var(--color-border); border-radius: var(--radius-md);">
+                  <span class="text-sm text-muted">Selecciona un paciente en el panel izquierdo para continuar.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Selección de Médico y Fecha para la Cita -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-3);">
+              <div class="form-group">
+                <label for="booking-doctor-select" class="form-label">Médico <span class="required">*</span></label>
+                <select id="booking-doctor-select" class="form-select">
+                  <!-- Llenado por JS -->
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="booking-date-input" class="form-label">Fecha <span class="required">*</span></label>
+                <input type="date" id="booking-date-input" class="form-input">
+              </div>
+            </div>
+
+            <!-- Bloque Horario Disponible -->
+            <div class="form-group">
+              <label for="booking-slot-select" class="form-label">
+                Horario Disponible <span class="required">*</span>
+                <span class="badge badge-available" id="booking-slots-count" style="font-size: 10px;">0 disp.</span>
+              </label>
+              <select id="booking-slot-select" class="form-select" disabled>
+                <option value="">Selecciona médico y fecha</option>
+              </select>
+              <span class="form-hint" id="booking-slot-hint">Solo se muestran bloques en estado Disponible.</span>
+            </div>
+
+            <!-- Motivo de la Cita -->
+            <div class="form-group">
+              <label for="booking-reason-input" class="form-label">Motivo de la Cita <span class="required">*</span></label>
+              <input type="text" id="booking-reason-input" class="form-input" placeholder="Ej. Dolor abdominal agudo, control anual" required>
+            </div>
+
+            <!-- Botón de Confirmación -->
+            <button type="button" class="btn btn-primary" id="btn-confirm-booking" style="width: 100%; margin-top: var(--spacing-3);" disabled>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Confirmar Reserva
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         VISTA 3: ATENCIÓN CLÍNICA
+         ==================================================================== -->
+    <section id="view-atencion" class="view-section" role="tabpanel" aria-labelledby="tab-btn-atencion">
+      <div class="toolbar">
+        <div class="toolbar-title-group">
+          <h1>Atención Clínica de Citas</h1>
+          <p class="text-muted">Carga una cita médica mediante su ID para registrar el diagnóstico y la prescripción farmacológica.</p>
+        </div>
+      </div>
+
+      <div class="attention-layout">
+        <!-- Barra de Búsqueda de Cita -->
+        <div class="card">
+          <div class="card-body" style="padding: var(--spacing-4) var(--spacing-5);">
+            <form id="form-search-appointment" class="search-appointment-bar">
+              <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label for="input-appointment-id" class="form-label">ID de la Cita Médica <span class="required">*</span></label>
+                <input type="number" id="input-appointment-id" class="form-input" min="1" placeholder="Ej. 1" required>
+              </div>
+              <button type="submit" class="btn btn-primary" id="btn-load-appointment">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Cargar Cita
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Ficha de Cita y Formulario de Atención -->
+        <div id="appointment-detail-container" style="display: none;">
+          
+          <!-- Banner de Cita Atendida (Solo si ya está atendida) -->
+          <div id="attended-banner" class="attended-banner" style="display: none;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <div>
+              <strong>Cita Atendida</strong> — Esta cita ya ha sido concluida y su diagnóstico se encuentra registrado en modo solo lectura.
+            </div>
+          </div>
+
+          <!-- Resumen de la Cita -->
+          <div class="card appointment-summary-card" style="margin-bottom: var(--spacing-5);">
+            <div class="card-header">
+              <h2 class="card-title">
+                Ficha de la Cita #<span id="summary-appt-id"></span>
+              </h2>
+              <div id="summary-appt-badge"></div>
+            </div>
+            <div class="card-body">
+              <div class="summary-grid">
+                <div class="summary-item">
+                  <span class="summary-label">Paciente</span>
+                  <span class="summary-value" id="summary-patient-name">—</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">DNI</span>
+                  <span class="summary-value" id="summary-patient-dni">—</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Médico Especialista</span>
+                  <span class="summary-value" id="summary-doctor-name">—</span>
+                </div>
+                <div class="summary-item">
+                  <span class="summary-label">Horario de Atención</span>
+                  <span class="summary-value" id="summary-slot-time">—</span>
+                </div>
+                <div class="summary-item" style="grid-column: 1 / -1;">
+                  <span class="summary-label">Motivo de Consulta</span>
+                  <span class="summary-value" id="summary-reason" style="font-weight: 500;">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulario de Atención -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Registro de Atención Médica
+              </h2>
+            </div>
+            <div class="card-body">
+              <form id="form-register-attention">
+                <div class="form-group">
+                  <label for="attention-diagnosis" class="form-label">
+                    Diagnóstico Clínico <span class="required">*</span>
+                  </label>
+                  <textarea id="attention-diagnosis" class="form-textarea" placeholder="Escriba el diagnóstico del paciente..." required></textarea>
+                  <span class="form-hint">El diagnóstico es obligatorio para dar por concluida la cita.</span>
+                </div>
+
+                <div class="form-group">
+                  <label for="attention-prescription" class="form-label">
+                    Receta / Prescripción Médica (Opcional)
+                  </label>
+                  <textarea id="attention-prescription" class="form-textarea" placeholder="Medicamentos, posología e indicaciones..." style="min-height: 80px;"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; margin-top: var(--spacing-4);">
+                  <button type="submit" class="btn btn-primary" id="btn-submit-attention">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Registrar y Concluir Atención
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Estado Inicial / Vacío -->
+        <div id="appointment-empty-state" class="card">
+          <div class="card-body">
+            <div class="empty-state">
+              <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <div class="empty-state-title">Ninguna cita seleccionada</div>
+              <div class="empty-state-description">Ingresa el ID de la cita médica en el campo superior para cargar el historial y registrar la atención.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <p>Sistema Clínico de Citas Médicas &copy; 2026 — Arquitectura Limpia .NET 10 y Vanilla Web SPA</p>
+  </footer>
+
+  <!-- Modal: Crear Nuevo Bloque de Agenda -->
+  <div id="modal-create-slot" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-slot-title">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2 id="modal-slot-title" class="modal-title">Agregar Bloque de Agenda</h2>
+        <button type="button" class="toast-close" id="btn-close-modal-slot" aria-label="Cerrar modal">
+          <svg width="18" height="18" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 1l12 12M13 1L1 13"/></svg>
+        </button>
+      </div>
+      <form id="form-create-slot">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Médico</label>
+            <input type="text" id="slot-modal-doctor-name" class="form-input" readonly disabled>
+          </div>
+
+          <div class="form-group">
+            <label for="slot-modal-date" class="form-label">Fecha <span class="required">*</span></label>
+            <input type="date" id="slot-modal-date" class="form-input" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-3);">
+            <div class="form-group">
+              <label for="slot-modal-start" class="form-label">Hora Inicio <span class="required">*</span></label>
+              <input type="time" id="slot-modal-start" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label for="slot-modal-end" class="form-label">Hora Fin <span class="required">*</span></label>
+              <input type="time" id="slot-modal-end" class="form-input" required>
+            </div>
+          </div>
+          <div class="form-error-text" id="slot-modal-time-error"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-modal-slot">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-submit-create-slot">Guardar Bloque</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/toast.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

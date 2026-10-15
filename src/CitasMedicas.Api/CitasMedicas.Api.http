@@ -1,0 +1,145 @@
+@CitasMedicas.Api_HostAddress = http://localhost:5290
+
+### E1: Registrar Paciente (201 Created)
+POST {{CitasMedicas.Api_HostAddress}}/api/patients
+Content-Type: application/json
+
+{
+  "dni": "45678912",
+  "firstName": "Rosa",
+  "lastName": "García López",
+  "phone": "+51 987 654 321",
+  "email": "rosa.garcia@correo.pe"
+}
+
+### E1 Error: DNI duplicado (409 Conflict)
+POST {{CitasMedicas.Api_HostAddress}}/api/patients
+Content-Type: application/json
+
+{
+  "dni": "45678912",
+  "firstName": "Rosa",
+  "lastName": "García López",
+  "phone": "+51 987 654 321",
+  "email": "rosa.garcia@correo.pe"
+}
+
+### E1 Error: DNI inválido (400 Bad Request)
+POST {{CitasMedicas.Api_HostAddress}}/api/patients
+Content-Type: application/json
+
+{
+  "dni": "123",
+  "firstName": "Rosa",
+  "lastName": "García López",
+  "phone": "+51 987 654 321",
+  "email": "rosa.garcia@correo.pe"
+}
+
+### E2: Buscar Paciente por DNI (200 OK)
+GET {{CitasMedicas.Api_HostAddress}}/api/patients?dni=45678912
+
+### E3: Buscar Pacientes por Apellidos (200 OK)
+GET {{CitasMedicas.Api_HostAddress}}/api/patients?lastName=gar
+
+### E2/E3 Error: Parámetros inválidos (400 Bad Request)
+GET {{CitasMedicas.Api_HostAddress}}/api/patients?dni=45678912&lastName=gar
+
+### E4: Crear bloque de agenda (201 Created)
+POST {{CitasMedicas.Api_HostAddress}}/api/doctors/1/schedule-slots
+Content-Type: application/json
+
+{
+  "date": "2026-10-15",
+  "startTime": "09:00",
+  "endTime": "09:30"
+}
+
+### E4 Error: Solapamiento (409 Conflict)
+POST {{CitasMedicas.Api_HostAddress}}/api/doctors/1/schedule-slots
+Content-Type: application/json
+
+{
+  "date": "2026-10-15",
+  "startTime": "09:15",
+  "endTime": "09:45"
+}
+
+### E4 Error: Rango inválido (400 Bad Request)
+POST {{CitasMedicas.Api_HostAddress}}/api/doctors/1/schedule-slots
+Content-Type: application/json
+
+{
+  "date": "2026-10-15",
+  "startTime": "10:00",
+  "endTime": "09:30"
+}
+
+### E5: Consultar agenda del día (200 OK)
+GET {{CitasMedicas.Api_HostAddress}}/api/doctors/1/schedule-slots?date=2026-10-15
+
+### E5 Error: Fecha inválida (400 Bad Request)
+GET {{CitasMedicas.Api_HostAddress}}/api/doctors/1/schedule-slots?date=invalida
+
+### E6: Reservar cita (201 Created)
+POST {{CitasMedicas.Api_HostAddress}}/api/appointments
+Content-Type: application/json
+
+{
+  "scheduleSlotId": 1,
+  "patientId": 1,
+  "reason": "Dolor de cabeza recurrente"
+}
+
+### E6 Error: Paciente no encontrado (404 Not Found)
+POST {{CitasMedicas.Api_HostAddress}}/api/appointments
+Content-Type: application/json
+
+{
+  "scheduleSlotId": 1,
+  "patientId": 9999,
+  "reason": "Dolor de cabeza recurrente"
+}
+
+### E6 Error: Horario ya reservado (409 Conflict)
+POST {{CitasMedicas.Api_HostAddress}}/api/appointments
+Content-Type: application/json
+
+{
+  "scheduleSlotId": 1,
+  "patientId": 1,
+  "reason": "Segunda reserva"
+}
+
+### E7: Registrar atención (200 OK)
+POST {{CitasMedicas.Api_HostAddress}}/api/appointments/1/attention
+Content-Type: application/json
+
+{
+  "diagnosis": "Migraña tensional",
+  "prescription": "Paracetamol 500 mg c/8h por 3 días"
+}
+
+### E7 Error: Ya atendida (409 Conflict)
+POST {{CitasMedicas.Api_HostAddress}}/api/appointments/1/attention
+Content-Type: application/json
+
+{
+  "diagnosis": "Nuevo diagnóstico",
+  "prescription": "Nueva receta"
+}
+
+### E7 Error: Diagnóstico vacío (400 Bad Request)
+POST {{CitasMedicas.Api_HostAddress}}/api/appointments/1/attention
+Content-Type: application/json
+
+{
+  "diagnosis": "   ",
+  "prescription": "Paracetamol"
+}
+
+### E8: Consultar cita (200 OK)
+GET {{CitasMedicas.Api_HostAddress}}/api/appointments/1
+
+### E8 Error: Cita no encontrada (404 Not Found)
+GET {{CitasMedicas.Api_HostAddress}}/api/appointments/9999

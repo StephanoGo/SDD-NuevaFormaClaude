@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CitasMedicas.Api/CitasMedicas.Api.csproj" />
+    <Project Path="src/CitasMedicas.Application/CitasMedicas.Application.csproj" />
+    <Project Path="src/CitasMedicas.Domain/CitasMedicas.Domain.csproj" />
+    <Project Path="src/CitasMedicas.Infrastructure/CitasMedicas.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CitasMedicas.Tests/CitasMedicas.Tests.csproj" />
+  </Folder>
+</Solution>
