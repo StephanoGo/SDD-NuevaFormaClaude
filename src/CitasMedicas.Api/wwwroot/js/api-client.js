@@ -93,6 +93,14 @@ class ApiClient {
   }
 
   // --- Agenda y Bloques ---
+  async getDoctors(includeInactive = false) {
+    return await this._request(`/api/doctors?includeInactive=${includeInactive}`, { method: 'GET' });
+  }
+
+  async getSpecialties(includeInactive = false) {
+    return await this._request(`/api/specialties?includeInactive=${includeInactive}`, { method: 'GET' });
+  }
+
   async getDoctorSlots(doctorId, date) {
     const encodedDate = encodeURIComponent(date);
     return await this._request(`/api/doctors/${doctorId}/schedule-slots?date=${encodedDate}`, {

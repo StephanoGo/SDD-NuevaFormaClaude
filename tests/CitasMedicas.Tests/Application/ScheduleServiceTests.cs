@@ -8,7 +8,9 @@ namespace CitasMedicas.Tests.Application;
 
 public class ScheduleServiceTests
 {
-    private readonly InMemoryDoctorRepository _doctorRepo = new();
+    private readonly InMemoryDoctorRepository _doctorRepo = new([
+        TestBuilders.CreateDoctor(id: 1, isActive: true),
+        TestBuilders.CreateDoctor(id: 3, isActive: false, firstName: "María", lastName: "Quispe Rojas")]);
     private readonly InMemoryAppointmentRepository _appointmentRepo = new();
     private readonly ScheduleService _service;
 
@@ -43,7 +45,7 @@ public class ScheduleServiceTests
     [Trait("RF", "RF-010")]
     public async Task HU02_Scenario2_CreateSlot_WithInactiveDoctor_ShouldReturnDoctorNotAvailable()
     {
-        // Doctor 3 is inactive in seed (María Quispe)
+        // The inactive doctor is a test fixture.
         var date = new DateOnly(2026, 10, 15);
         var start = new TimeOnly(9, 0);
         var end = new TimeOnly(9, 30);

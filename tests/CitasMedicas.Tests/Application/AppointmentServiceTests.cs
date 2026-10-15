@@ -10,7 +10,7 @@ namespace CitasMedicas.Tests.Application;
 
 public class AppointmentServiceTests
 {
-    private readonly InMemoryDoctorRepository _doctorRepo = new();
+    private readonly InMemoryDoctorRepository _doctorRepo = new([TestBuilders.CreateDoctor(id: 1, isActive: true)]);
     private readonly InMemoryPatientRepository _patientRepo = new();
     private readonly InMemoryAppointmentRepository _appointmentRepo = new();
     private readonly ScheduleService _scheduleService;

@@ -36,22 +36,25 @@ La interfaz es servida por la propia API desde `wwwroot`, funciona desde 360 px 
 
 ## Principios del proyecto
 
-El desarrollo sigue una constitución técnica que establece cinco reglas centrales:
+El desarrollo sigue un ciclo SDD conciso para evitar suposiciones y mantener calidad:
 
-1. Mantener un stack simple y no incorporar dependencias fuera de las aprobadas.
-2. Vincular toda implementación con un requisito identificado en las especificaciones.
-3. Mantener las reglas clínicas y de agenda fuera de controladores y vistas.
-4. Acceder a datos exclusivamente mediante repositorios y operaciones atómicas.
-5. No considerar una tarea terminada sin compilación y pruebas automatizadas exitosas.
+1. Ejecutar `/speckit-specify` para definir alcance, clarificaciones, RF y criterios verificables.
+2. Ejecutar `/speckit-plan`, `/speckit-checklist` y `/speckit-tasks` para diseño, control de calidad y desglose trazable.
+3. Exigir aprobación de `/speckit-analyze` antes de `/speckit-implement`.
+4. Ejecutar `dotnet build` y `dotnet test`; completar tareas solo con ambos en verde.
 
-## Especificaciones implementadas
+## Specs por módulo
 
-| Spec | Entrega | Alcance |
+| Módulo | Estado | Spec |
 | --- | --- | --- |
-| [001 — Citas Médicas Core](specs/001-citas-medicas-core/spec.md) | Backend y dominio | Pacientes, agenda, reservas, atención clínica, API y reglas de concurrencia. |
-| [002 — Interfaz Web](specs/002-interfaz-web-citas/spec.md) | Experiencia de usuario | SPA para agenda, pacientes, reservas y atención, con diseño responsivo y accesible. |
+| Pacientes | Implementado | [Spec](specs/modulos/pacientes.md) |
+| Agenda | Implementado | [Spec](specs/modulos/agenda.md) |
+| Citas | Implementado | [Spec](specs/modulos/citas.md) |
+| Atenciones | Registro básico implementado | [Spec](specs/modulos/atenciones.md) |
+| Historia Clínica | Propuesta pendiente de definición | [Spec](specs/modulos/historia-clinica.md) |
+| Experiencia web | Criterios comunes | [Spec](specs/modulos/experiencia-web.md) |
 
-El [catálogo de especificaciones](specs/README.md) reúne el estado de cada entrega y la [constitución del proyecto](.specify/memory/constitution.md) contiene sus reglas de desarrollo.
+El [catálogo de specs](specs/README.md) reúne el ciclo y los módulos. Las entregas 001 y 002 se conservan como registros históricos compactos; los detalles anteriores pueden recuperarse del historial de Git.
 
 ## Puesta en marcha
 
@@ -67,4 +70,4 @@ Una vez iniciado el servidor, la aplicación web queda disponible en la URL loca
 
 ## Alcance actual
 
-Esta versión se concentra en el flujo clínico esencial de una única sede y usa médicos precargados y persistencia en memoria. No incluye autenticación, gestión del catálogo de médicos, cancelación o reprogramación de citas, notificaciones, facturación ni una historia clínica consolidada. Estas capacidades quedan reservadas para futuras especificaciones.
+Esta versión se concentra en el flujo clínico esencial de una única sede y usa médicos precargados y persistencia en memoria. No incluye autenticación, gestión del catálogo de médicos, cancelación o reprogramación de citas, notificaciones ni facturación. La consulta longitudinal de historia clínica está propuesta, pero aún no implementada.

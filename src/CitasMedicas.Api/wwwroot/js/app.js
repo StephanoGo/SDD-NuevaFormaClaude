@@ -3,18 +3,12 @@
  * Manages tabs, agenda, patient registration & booking, and clinical attention.
  */
 
-// --- Predefined Doctors Seed ---
-const DOCTORS = [
-  { id: 1, name: 'Dra. Ana Torres Vega', specialty: 'Medicina General', isActive: true },
-  { id: 2, name: 'Dr. Luis Paredes Soto', specialty: 'Pediatría', isActive: true },
-  { id: 3, name: 'Dra. María Quispe Rojas', specialty: 'Cardiología', isActive: false }
-];
-
 // --- Application State ---
 const state = {
   selectedPatient: null,
   activeTab: 'view-agenda',
-  currentDoctorId: 1,
+  doctors: [],
+  currentDoctorId: null,
   currentDate: getTodayDateString(),
   currentAppointment: null
 };
@@ -57,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initBookingView();
   initAttentionView();
   initSlotModal();
+  refreshDoctorCatalog();
 });
 
 // ============================================================================
@@ -105,14 +100,6 @@ function initAgendaView() {
   const dateInput = document.getElementById('agenda-date-input');
   const refreshBtn = document.getElementById('btn-refresh-agenda');
 
-  // Populate doctor select
-  doctorSelect.innerHTML = DOCTORS.map(doc => `
-    <option value="${doc.id}">
-      ${escapeHtml(doc.name)} — ${escapeHtml(doc.specialty)} ${doc.isActive ? '' : '(Inactivo)'}
-    </option>
-  `).join('');
-
-  doctorSelect.value = state.currentDoctorId;
   dateInput.value = state.currentDate;
 
   doctorSelect.addEventListener('change', (e) => {
@@ -130,13 +117,39 @@ function initAgendaView() {
     loadAgendaSlots();
   });
 
-  updateDoctorBanner();
-  loadAgendaSlots();
+}
+
+async function refreshDoctorCatalog() {
+  try {
+    state.doctors = await apiClient.getDoctors();
+    const options = state.doctors.length
+      ? state.doctors.map(doc => `<option value="${doc.id}">${escapeHtml(`${doc.firstName} ${doc.lastName}`)} — ${escapeHtml(doc.specialty)}</option>`).join('')
+      : '<option value="">No hay médicos activos</option>';
+    for (const id of ['agenda-doctor-select', 'booking-doctor-select']) {
+      const select = document.getElementById(id);
+      if (!select) continue;
+      select.innerHTML = options;
+      if (state.doctors.length) {
+        if (!state.doctors.some(doc => doc.id === state.currentDoctorId)) state.currentDoctorId = state.doctors[0].id;
+        select.value = String(state.currentDoctorId);
+      }
+      select.disabled = state.doctors.length === 0;
+    }
+    const createSlotButton = document.getElementById('btn-open-create-slot');
+    if (createSlotButton) createSlotButton.disabled = state.doctors.length === 0;
+    updateDoctorBanner();
+    if (state.currentDoctorId !== null) {
+      await loadAgendaSlots();
+      await loadBookingSlots();
+    }
+  } catch (error) {
+    Toast.error(error.detail, 'Catálogo de médicos', error.code);
+  }
 }
 
 function updateDoctorBanner() {
   const banner = document.getElementById('doctor-status-banner');
-  const doctor = DOCTORS.find(d => d.id === state.currentDoctorId);
+  const doctor = state.doctors.find(d => d.id === state.currentDoctorId);
   if (!doctor || !banner) return;
 
   if (doctor.isActive) {
@@ -255,8 +268,8 @@ function initSlotModal() {
   const submitBtn = document.getElementById('btn-submit-create-slot');
 
   const openModal = () => {
-    const doctor = DOCTORS.find(d => d.id === state.currentDoctorId);
-    doctorInput.value = doctor ? `${doctor.name} (${doctor.specialty})` : '';
+    const doctor = state.doctors.find(d => d.id === state.currentDoctorId);
+    doctorInput.value = doctor ? `${doctor.firstName} ${doctor.lastName} (${doctor.specialty})` : '';
     dateInput.value = state.currentDate;
     startInput.value = '09:00';
     endInput.value = '09:30';
@@ -466,13 +479,6 @@ function initBookingView() {
   });
 
   // Booking Doctors & Date setup
-  bookingDoctorSelect.innerHTML = DOCTORS.map(doc => `
-    <option value="${doc.id}">
-      ${escapeHtml(doc.name)} (${escapeHtml(doc.specialty)}) ${doc.isActive ? '' : '— Inactivo'}
-    </option>
-  `).join('');
-
-  bookingDoctorSelect.value = state.currentDoctorId;
   bookingDateInput.value = state.currentDate;
 
   bookingDoctorSelect.addEventListener('change', () => {

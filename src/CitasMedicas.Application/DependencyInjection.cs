@@ -1,4 +1,5 @@
 using CitasMedicas.Application.Appointments;
+using CitasMedicas.Application.Catalogs;
 using CitasMedicas.Application.Common;
 using CitasMedicas.Application.Patients;
 using CitasMedicas.Application.Scheduling;
@@ -14,6 +15,7 @@ public static class DependencyInjection
         services.AddScoped<PatientService>();
         services.AddScoped<ScheduleService>();
         services.AddScoped<AppointmentService>();
+        services.AddScoped<CatalogService>();
 
         return services;
     }

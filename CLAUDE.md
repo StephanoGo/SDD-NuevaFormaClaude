@@ -20,10 +20,13 @@ Sistema de gestión médica para registro de pacientes, agenda de médicos, prog
 - **Lista Cerrada de Paquetes NuGet**: Prohibido agregar paquetes en proyectos de producción (`Domain`, `Application`, `Infrastructure`, `Api`). Solo `FluentAssertions 7.x`, `Microsoft.NET.Test.Sdk`, `xunit` y su runner en pruebas.
 - **Zona Horaria de la Clínica**: Manejo de fechas y horas locales basado en `System.TimeProvider` y la zona horaria `America/Lima`.
 
-## Convenciones
-- Arquitectura limpia en 3 capas (`Domain`, `Application`, `Infrastructure`) + Host Web API (`Api`).
-- Cada feature vive en su rama Git: `NNN-nombre-feature`.
-- Ninguna línea de código de negocio se implementa sin un plan y tareas aprobadas.
-- Actualizar este archivo al cerrar cada spec con decisiones transversales.
+## SDD y módulos
+- Las specs activas por módulo viven en `specs/modulos/`; el catálogo está en `specs/README.md`.
+- Para toda feature significativa, seguir en orden `/speckit-specify` → `/speckit-plan` → `/speckit-checklist` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`.
+- Mantener artefactos por módulo y concisos: `spec.md` (clarifications, in/out of scope, RF y Given/When/Then), `plan.md` (arquitectura, modelo y contratos), checklists de requisitos y dominio/UX cuando corresponda, y `tasks.md` con dependencias y trazabilidad RF.
+- `/speckit-analyze` es una puerta de bloqueo: no implementar si detecta ambigüedades, contradicciones o RF sin cobertura en diseño, tareas y pruebas.
+- Solo `/speckit-implement` modifica código ejecutable bajo `src/` y `tests/`. Debe añadir o ajustar pruebas, ejecutar `dotnet build` y `dotnet test`, y marcar tareas `[x]` únicamente cuando ambas comprobaciones pasen.
+- Basarse en la spec y el código; no inventar requisitos. Aclarar con el usuario decisiones de negocio faltantes y reportar comprobaciones que no se pudieron ejecutar.
+- Actualizar esta memoria solo cuando cambie una decisión técnica transversal.
 
-Las reglas de producto viven en .specify/memory/constitution.md y el estado del producto en specs/README.md.
+Las reglas de desarrollo viven en `.specify/memory/constitution.md`. Las skills locales que exponen los seis comandos están en `.claude/skills/speckit-*/SKILL.md`. Los documentos de entregas anteriores bajo `specs/001-citas-medicas-core` y `specs/002-interfaz-web-citas` son registros compactos; las versiones extensas están en el historial de Git.

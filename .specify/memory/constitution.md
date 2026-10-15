@@ -1,7 +1,10 @@
-# Constitución del Proyecto
+# Reglas del Proyecto
 
-1. **Simplicidad del Stack**: Prohibido agregar paquetes NuGet o librerías externas no declaradas en el plan.
-2. **Spec Manda**: Toda implementación debe responder directamente a un ID de requisito en `spec.md`.
-3. **Separación de Responsabilidades**: Las reglas clínicas y de agenda residen en la capa de Dominio/Servicio; jamás en controladores o vistas.
-4. **Persistencia Controlada**: Todo acceso a datos se realiza a través de interfaces de repositorio con transacciones atómicas.
-5. **Verificación Automatizada**: Ninguna tarea se marca como completada sin pasar `dotnet test` y `dotnet build` con 0 errores.
+1. **Módulos claros**: Organizar el producto por capacidades: Pacientes, Agenda, Citas, Atenciones e Historia Clínica. Médicos es actualmente un catálogo de apoyo, no un módulo de gestión independiente. Mantener una sola aplicación y las capas existentes; cada módulo es responsable de su comportamiento.
+2. **SDD como control de precisión**: Todo cambio debe comenzar con una necesidad y un alcance explícitos. La spec es la fuente de verdad para comportamiento, reglas y criterios de aceptación. La IA debe basarse en la spec y el código existente; no debe inventar reglas de negocio, datos, dependencias ni requisitos. Si falta una decisión que cambie el comportamiento, debe señalarla y pedir definición antes de implementarla.
+3. **Flujo SDD obligatorio por feature**: Para una feature nueva o un cambio funcional significativo, seguir en orden `/speckit-specify`, `/speckit-plan`, `/speckit-checklist`, `/speckit-tasks`, `/speckit-analyze` y `/speckit-implement`. Mantener sus salidas separadas por módulo y concisas: spec con alcance, clarificaciones, RF y Given/When/Then; plan con diseño, modelo y contratos necesarios; checklist de calidad; tareas atómicas enlazadas a RF; análisis cruzado; implementación y pruebas. No duplicar decisiones compartidas. `analyze` bloquea la implementación ante ambigüedades, requisitos sin cobertura o contradicciones. Solo `implement` modifica código ejecutable en `src/` y `tests/`; marca tareas completas tras pasar las comprobaciones.
+4. **Historia clínica prioritaria**: La historia clínica reúne cronológicamente las atenciones de un paciente. Los módulos de pacientes, agenda y reservas apoyan ese flujo; no duplicar en ellos los datos clínicos.
+5. **Simplicidad del stack**: No añadir paquetes NuGet ni librerías externas a producción sin una necesidad documentada y aprobada en la spec afectada.
+6. **Reglas en el lugar correcto**: Las reglas clínicas y de agenda pertenecen al dominio o a la aplicación; no a endpoints ni vistas.
+7. **Persistencia controlada**: Acceder a los datos mediante repositorios y conservar las operaciones atómicas cuando una regla necesite proteger estado compartido.
+8. **Calidad automatizada**: Traducir los criterios de aceptación en pruebas para el comportamiento nuevo o modificado, incluyendo reglas clínicas relevantes. Antes de dar por terminado un cambio, ejecutar `dotnet build` y `dotnet test`; ambos deben finalizar sin errores. Informar cualquier comprobación que no se haya podido ejecutar y su motivo.

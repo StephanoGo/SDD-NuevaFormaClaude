@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using CitasMedicas.Api.Endpoints;
 using CitasMedicas.Application;
 using CitasMedicas.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 // Verificar zona horaria America/Lima al arrancar
 try
@@ -19,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Servicios
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
@@ -29,6 +30,12 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 var app = builder.Build();
 
+await using (var scope = app.Services.CreateAsyncScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<CitasMedicas.Infrastructure.Persistence.SqlServer.ClinicDbContext>();
+    await db.Database.MigrateAsync();
+}
+
 app.UseHttpsRedirection();
 
 app.UseDefaultFiles();
@@ -36,6 +43,7 @@ app.UseStaticFiles();
 
 // Endpoints
 app.MapGroup("/api/patients").MapPatientEndpoints();
+app.MapGroup("/api").MapCatalogEndpoints();
 app.MapGroup("/api/doctors").MapScheduleEndpoints();
 app.MapGroup("/api/appointments").MapAppointmentEndpoints();
 

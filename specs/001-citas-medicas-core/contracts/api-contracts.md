@@ -1,16 +1,12 @@
-# Contratos: Núcleo de Citas Médicas
+# Contrato HTTP vigente: API de Citas Médicas
 
 | Campo | Valor |
 | :--- | :--- |
-| **Feature** | `001-citas-medicas-core` |
-| **Plan** | [plan.md](../plan.md) |
-| **Especificación** | [spec.md](../spec.md) |
-| **Modelo de datos** | [data-model.md](../data-model.md) |
+| **Módulos funcionales** | [Pacientes](../../modulos/pacientes.md) · [Agenda](../../modulos/agenda.md) · [Citas](../../modulos/citas.md) · [Atenciones](../../modulos/atenciones.md) |
 
-Este documento define:
-1. **Contrato HTTP** de la Web API (§2): lo que consume un cliente.
-2. **Contratos de repositorio** (§3): `IPatientRepository`, `IDoctorRepository` e `IAppointmentRepository`, la frontera entre Aplicación e Infraestructura.
-3. **Catálogo de errores** (§4): códigos estables exigidos por RF-029.
+Este documento conserva las rutas HTTP, formatos y errores usados por los clientes. Las interfaces internas de repositorio y el código de implementación pueden cambiar; consultar el código fuente vigente.
+
+Los endpoints de catálogo para alta, edición, listados y desactivación lógica de médicos/especialidades se definen en [`003-persistencia-sql-server/contracts/persistence-and-catalog-contracts.md`](../003-persistencia-sql-server/contracts/persistence-and-catalog-contracts.md).
 
 > Las firmas se describen en tablas, sin código C#. La implementación las traduce literalmente.
 
@@ -265,11 +261,11 @@ Este documento define:
 
 ## 3. Contratos de Repositorio
 
-Ubicación en código: `CitasMedicas.Application/Abstractions/Persistence` ([research.md R-05](../research.md)). Implementación de esta fase: en memoria ([R-02](../research.md)).
+Ubicación vigente en código: `src/CitasMedicas.Application/Abstractions/Persistence`. La infraestructura actual usa almacenamiento en memoria.
 
 **Reglas comunes**
 - Todas las operaciones son asíncronas y aceptan un token de cancelación.
-- Las operaciones de escritura son **atómicas**: se confirman por completo o no se confirman ([R-03](../research.md)).
+- Las operaciones de escritura que coordinan estado compartido son atómicas: se confirman por completo o no se confirman.
 - Las escrituras que pueden fallar por el estado persistido devuelven `Result` con un código del catálogo (§4); no lanzan excepciones de negocio.
 - Los repositorios **no** deciden reglas de negocio. Solo garantizan que el estado sobre el que decidió el Dominio no cambió antes de confirmar.
 
@@ -280,19 +276,19 @@ Ubicación en código: `CitasMedicas.Application/Abstractions/Persistence` ([res
 | `AddAsync` | `Patient` (sin Id) | `Result<Patient>` | Asigna el `Id` e inserta. Si el DNI ya existe al confirmar, devuelve `PATIENT_DNI_DUPLICATE` (INV-01). | RF-001, RF-002 |
 | `GetByIdAsync` | `id` | `Patient?` | Lectura por clave. | RF-017, RF-026 |
 | `GetByDniAsync` | `dni` | `Patient?` | Coincidencia exacta. | RF-002, RF-006 |
-| `SearchByLastNameAsync` | `text` | Lista de `Patient` | Contiene, sobre valores normalizados con `TextNormalizer.ForSearch` ([R-08](../research.md)); ordenada por `LastName, FirstName`. | RF-007 |
+| `SearchByLastNameAsync` | `text` | Lista de `Patient` | Contiene, sobre valores normalizados con `TextNormalizer.ForSearch`; ordenada por `LastName, FirstName`. | RF-007 |
 
 ### 3.2 `IDoctorRepository`
 
 | Operación | Entrada | Salida | Semántica | Req. |
 | :--- | :--- | :--- | :--- | :--- |
-| `GetByIdAsync` | `id` | `Doctor?` | Lectura por clave. Los datos provienen del seed ([data-model.md §7](../data-model.md)). | RF-010, RF-019, RF-026 |
+| `GetByIdAsync` | `id` | `Doctor?` | Lectura persistida por clave; la especialidad activa forma parte de la disponibilidad efectiva para agenda y reserva. | RF-010, RF-019, RF-026 |
 
-> No existen operaciones de escritura sobre médicos (spec, supuesto 4).
+> Las operaciones de gestión del catálogo de médicos están definidas en el contrato de Persistencia SQL Server enlazado arriba.
 
 ### 3.3 `IAppointmentRepository`
 
-Gestiona `ScheduleSlot` y `Appointment` porque la reserva las modifica atómicamente ([R-04](../research.md)).
+Gestiona `ScheduleSlot` y `Appointment` porque la reserva modifica ambas entidades atómicamente.
 
 | Operación | Entrada | Salida | Semántica | Req. |
 | :--- | :--- | :--- | :--- | :--- |
