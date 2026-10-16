@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\CitasMedicas.Domain\CitasMedicas.Domain.csproj" />
     <ProjectReference Include="..\..\src\CitasMedicas.Application\CitasMedicas.Application.csproj" />
     <ProjectReference Include="..\..\src\CitasMedicas.Infrastructure\CitasMedicas.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\CitasMedicas.Api\CitasMedicas.Api.csproj" />
   </ItemGroup>
 
 </Project>

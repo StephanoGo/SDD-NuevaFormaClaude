@@ -30,6 +30,6 @@ Las carpetas `001-citas-medicas-core` y `002-interfaz-web-citas` son registros c
 | :---: | :--- | :--- | :--- |
 | 001 | Core: pacientes, agenda, citas y registro de atención | [Registro](./001-citas-medicas-core/spec.md) | Entrega completada; detalle original en Git |
 | 002 | Interfaz web | [Registro](./002-interfaz-web-citas/spec.md) | Entrega completada; detalle original en Git |
-| 003 | Persistencia SQL Server para demo clínica | [Spec](./003-persistencia-sql-server/spec.md) | Specified; plan, contratos y tareas listos para análisis |
+| 003 | Persistencia SQL Server para demo clínica | [Spec](./003-persistencia-sql-server/spec.md) | Análisis SDD listo para implementación acotada; T001/T002/T013 pendientes de verificación, T011 pendiente hasta migración posterior real |
 
 Historia Clínica es una propuesta funcional pendiente de acordar y detallar antes de implementarse.
