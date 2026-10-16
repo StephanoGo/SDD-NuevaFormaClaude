@@ -39,12 +39,24 @@ await using (var scope = app.Services.CreateAsyncScope())
 app.UseHttpsRedirection();
 
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = ctx =>
+    {
+        // Evita que el navegador cachee HTML/CSS/JS y siempre sirva la última versión.
+        ctx.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+    }
+});
 
 // Endpoints
 app.MapGroup("/api/patients").MapPatientEndpoints();
 app.MapGroup("/api").MapCatalogEndpoints();
 app.MapGroup("/api/doctors").MapScheduleEndpoints();
 app.MapGroup("/api/appointments").MapAppointmentEndpoints();
+
+// Rutas de cliente de la SPA: servir index.html en rutas conocidas.
+// Las rutas /api desconocidas conservan 404.
+app.MapFallback("/api/{**path}", () => Results.NotFound());
+app.MapFallbackToFile("index.html");
 
 app.Run();

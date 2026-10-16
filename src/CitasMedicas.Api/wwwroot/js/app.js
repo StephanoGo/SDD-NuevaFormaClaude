@@ -32,6 +32,11 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+function patientFullName(patient) {
+  if (!patient) return '';
+  return `${patient.firstName || ''} ${patient.lastName || ''}`.trim();
+}
+
 async function withButtonLoading(button, action) {
   if (!button) return await action();
   button.disabled = true;
@@ -51,44 +56,78 @@ document.addEventListener('DOMContentLoaded', () => {
   initBookingView();
   initAttentionView();
   initSlotModal();
+  const initialTarget = targetForLocation(location.pathname) || 'view-agenda';
+  activateTab(initialTarget, { updateUrl: location.pathname !== '/' });
   refreshDoctorCatalog();
 });
 
 // ============================================================================
+// 0. Enrutado de la SPA (rutas de cliente)
+// ============================================================================
+const ROUTES = {
+  '/agenda': 'view-agenda',
+  '/citas': 'view-reservas',
+  '/reservas': 'view-reservas',
+  '/pacientes': 'view-reservas',
+  '/atencion': 'view-atencion'
+};
+const DEFAULT_ROUTE = '/agenda';
+
+function routeForTarget(targetId) {
+  const entry = Object.entries(ROUTES).find(([, value]) => value === targetId);
+  return entry ? entry[0] : DEFAULT_ROUTE;
+}
+
+function targetForLocation(pathname) {
+  const normalized = (pathname || '/').replace(/\/+$/, '') || '/';
+  return ROUTES[normalized] || null;
+}
+
+// ============================================================================
 // 1. Tab Navigation
 // ============================================================================
-function initTabs() {
-  const tabs = document.querySelectorAll('.nav-tab');
-  const sections = document.querySelectorAll('.view-section');
+function activateTab(targetId, options = {}) {
+  const tab = document.querySelector(`.nav-tab[data-target="${targetId}"]`);
+  const section = document.getElementById(targetId);
+  if (!tab || !section) return;
 
-  tabs.forEach(tab => {
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+
+  tab.classList.add('active');
+  tab.setAttribute('aria-selected', 'true');
+  section.classList.add('active');
+  state.activeTab = targetId;
+
+  if (options.updateUrl === true) {
+    const path = routeForTarget(targetId);
+    if (location.pathname !== path) {
+      history.pushState({ targetId }, '', path);
+    }
+  }
+
+  // Auto-refresh when entering tabs
+  if (targetId === 'view-agenda') {
+    loadAgendaSlots();
+  } else if (targetId === 'view-reservas') {
+    loadBookingSlots();
+  }
+}
+
+function initTabs() {
+  document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const targetId = tab.getAttribute('data-target');
-      if (!targetId) return;
-
-      tabs.forEach(t => {
-        t.classList.remove('active');
-        t.setAttribute('aria-selected', 'false');
-      });
-      sections.forEach(s => s.classList.remove('active'));
-
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
-
-      const targetSection = document.getElementById(targetId);
-      if (targetSection) {
-        targetSection.classList.add('active');
-      }
-
-      state.activeTab = targetId;
-
-      // Auto-refresh when entering tabs
-      if (targetId === 'view-agenda') {
-        loadAgendaSlots();
-      } else if (targetId === 'view-reservas') {
-        loadBookingSlots();
-      }
+      if (targetId) activateTab(targetId, { updateUrl: true });
     });
+  });
+
+  window.addEventListener('popstate', () => {
+    const targetId = targetForLocation(location.pathname) || 'view-agenda';
+    activateTab(targetId, { updateUrl: false });
   });
 }
 
@@ -176,6 +215,21 @@ async function loadAgendaSlots() {
   const countBadge = document.getElementById('agenda-slots-count');
   if (!container) return;
 
+  // Aún no hay médico seleccionado (el catálogo se carga en refreshDoctorCatalog).
+  if (state.currentDoctorId === null || Number.isNaN(state.currentDoctorId)) {
+    if (countBadge) countBadge.textContent = '—';
+    container.innerHTML = `
+      <div class="empty-state">
+        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <div class="empty-state-title">Selecciona un médico</div>
+        <div class="empty-state-description">Elige un profesional de la salud para consultar sus bloques horarios.</div>
+      </div>
+    `;
+    return;
+  }
+
   container.innerHTML = `
     <div style="text-align: center; padding: var(--spacing-6); color: var(--color-text-muted);">
       <div class="empty-state-title">Cargando bloques horarios...</div>
@@ -226,7 +280,7 @@ function renderSlots(slots) {
   container.innerHTML = `
     <div class="slots-grid">
       ${sorted.map(slot => {
-        const isAvail = slot.isAvailable;
+        const isAvail = slot.status === 'Available';
         const statusBadge = isAvail
           ? '<span class="badge badge-available"><span class="badge-dot"></span> Disponible</span>'
           : '<span class="badge badge-reserved"><span class="badge-dot"></span> Reservado</span>';
@@ -262,20 +316,92 @@ function initSlotModal() {
   const form = document.getElementById('form-create-slot');
   const doctorInput = document.getElementById('slot-modal-doctor-name');
   const dateInput = document.getElementById('slot-modal-date');
-  const startInput = document.getElementById('slot-modal-start');
-  const endInput = document.getElementById('slot-modal-end');
   const errorText = document.getElementById('slot-modal-time-error');
+  const previewText = document.getElementById('slot-time-preview');
   const submitBtn = document.getElementById('btn-submit-create-slot');
+
+  const startHour = document.getElementById('slot-start-hour');
+  const startMinute = document.getElementById('slot-start-minute');
+  const startAmpm = document.getElementById('slot-start-ampm');
+  const endHour = document.getElementById('slot-end-hour');
+  const endMinute = document.getElementById('slot-end-minute');
+  const endAmpm = document.getElementById('slot-end-ampm');
+  const durationChips = Array.from(modal.querySelectorAll('.chip[data-minutes]'));
+
+  // Rellenar desplegables (formato de 12 horas)
+  const hourOptions = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+  const minuteOptions = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
+  const fillSelect = (select, options) => {
+    select.innerHTML = options.map(v => `<option value="${v}">${v}</option>`).join('');
+  };
+  [startHour, endHour].forEach(s => fillSelect(s, hourOptions));
+  [startMinute, endMinute].forEach(s => fillSelect(s, minuteOptions));
+
+  // --- Conversión entre 12 h (con AM/PM) y 24 h ---
+  const readTime = (hourSel, minuteSel, ampmSel) => {
+    let h = parseInt(hourSel.value, 10) % 12;
+    if (ampmSel.value === 'PM') h += 12;
+    return { h, m: parseInt(minuteSel.value, 10) };
+  };
+  const setTime = (hourSel, minuteSel, ampmSel, h24, m) => {
+    let h = h24 % 12;
+    if (h === 0) h = 12;
+    hourSel.value = String(h).padStart(2, '0');
+    minuteSel.value = String(m).padStart(2, '0');
+    ampmSel.value = h24 >= 12 ? 'PM' : 'AM';
+  };
+  const to24 = (h24, m) => `${String(h24).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+  const format12 = (h24, m) => {
+    let h = h24 % 12;
+    if (h === 0) h = 12;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')} ${h24 >= 12 ? 'PM' : 'AM'}`;
+  };
+  const toMinutes = t => t.h * 60 + t.m;
+
+  const clearChipActive = () => durationChips.forEach(c => c.classList.remove('active'));
+
+  const updatePreview = () => {
+    const s = readTime(startHour, startMinute, startAmpm);
+    const e = readTime(endHour, endMinute, endAmpm);
+    const diff = toMinutes(e) - toMinutes(s);
+    previewText.textContent = diff > 0
+      ? `${format12(s.h, s.m)} — ${format12(e.h, e.m)}  (${diff} min)`
+      : `${format12(s.h, s.m)} — ${format12(e.h, e.m)}  (rango inválido)`;
+  };
+
+  // Cambio manual de hora: quita la duración rápida activa y refresca la vista previa
+  [startHour, startMinute, startAmpm, endHour, endMinute, endAmpm].forEach(el => {
+    el.addEventListener('change', () => {
+      clearChipActive();
+      updatePreview();
+    });
+  });
+
+  // Duración rápida: calcula automáticamente la hora fin
+  durationChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const minutes = parseInt(chip.dataset.minutes, 10);
+      const s = readTime(startHour, startMinute, startAmpm);
+      let endTotal = toMinutes(s) + minutes;
+      if (endTotal > 23 * 60 + 59) endTotal = 23 * 60 + 59;
+      setTime(endHour, endMinute, endAmpm, Math.floor(endTotal / 60), endTotal % 60);
+      clearChipActive();
+      chip.classList.add('active');
+      updatePreview();
+    });
+  });
 
   const openModal = () => {
     const doctor = state.doctors.find(d => d.id === state.currentDoctorId);
     doctorInput.value = doctor ? `${doctor.firstName} ${doctor.lastName} (${doctor.specialty})` : '';
     dateInput.value = state.currentDate;
-    startInput.value = '09:00';
-    endInput.value = '09:30';
+    setTime(startHour, startMinute, startAmpm, 9, 0);
+    setTime(endHour, endMinute, endAmpm, 9, 30);
+    clearChipActive();
     errorText.textContent = '';
+    updatePreview();
     modal.classList.add('is-open');
-    startInput.focus();
+    startHour.focus();
   };
 
   const closeModal = () => {
@@ -302,14 +428,16 @@ function initSlotModal() {
     e.preventDefault();
     errorText.textContent = '';
 
-    const startTime = startInput.value;
-    const endTime = endInput.value;
+    const s = readTime(startHour, startMinute, startAmpm);
+    const eTime = readTime(endHour, endMinute, endAmpm);
+    const startTime = to24(s.h, s.m);
+    const endTime = to24(eTime.h, eTime.m);
     const date = dateInput.value;
 
     // Client validation: startTime < endTime
-    if (startTime >= endTime) {
+    if (toMinutes(s) >= toMinutes(eTime)) {
       errorText.textContent = 'La hora de inicio debe ser estrictamente menor que la hora de fin.';
-      startInput.focus();
+      startHour.focus();
       return;
     }
 
@@ -404,13 +532,19 @@ function initBookingView() {
     const firstName = document.getElementById('reg-patient-firstname').value.trim();
     const lastName = document.getElementById('reg-patient-lastname').value.trim();
     const email = document.getElementById('reg-patient-email').value.trim() || null;
-    const phone = document.getElementById('reg-patient-phone').value.trim() || null;
+    const phone = document.getElementById('reg-patient-phone').value.trim();
     const dniError = document.getElementById('reg-patient-dni-error');
 
     dniError.textContent = '';
 
     if (!/^\d{8}$/.test(dni)) {
       dniError.textContent = 'El DNI debe contener exactamente 8 dígitos numéricos.';
+      return;
+    }
+
+    if (!phone) {
+      Toast.warning('El teléfono es obligatorio.');
+      document.getElementById('reg-patient-phone').focus();
       return;
     }
 
@@ -424,7 +558,7 @@ function initBookingView() {
           phone
         });
 
-        Toast.success(`Paciente ${patient.fullName} registrado correctamente.`);
+        Toast.success(`Paciente ${patientFullName(patient)} registrado correctamente.`);
         selectPatient(patient);
         formRegister.reset();
         panelNew.style.display = 'none';
@@ -525,7 +659,7 @@ function initBookingView() {
           reason
         });
 
-        Toast.success(`¡Cita #${appointment.id} reservada con éxito para ${state.selectedPatient.fullName}!`);
+        Toast.success(`¡Cita #${appointment.id} reservada con éxito para ${patientFullName(state.selectedPatient)}!`);
         bookingReasonInput.value = '';
         
         // Refresh slots in booking & agenda
@@ -559,7 +693,7 @@ function renderPatientSearchResults(patients) {
   container.innerHTML = patients.map(p => `
     <div class="patient-result-card ${state.selectedPatient?.id === p.id ? 'is-selected' : ''}" data-patient-id="${p.id}">
       <div>
-        <div class="patient-info-name">${escapeHtml(p.fullName)}</div>
+        <div class="patient-info-name">${escapeHtml(patientFullName(p))}</div>
         <div class="patient-info-meta">DNI: ${escapeHtml(p.dni)} | Tel: ${escapeHtml(p.phone || 'No registrado')}</div>
       </div>
       <button type="button" class="btn btn-primary btn-sm btn-select-patient" data-patient='${JSON.stringify(p)}'>
@@ -583,7 +717,7 @@ function selectPatient(patient) {
     display.innerHTML = `
       <div class="selected-patient-box">
         <div>
-          <div style="font-weight: 600; font-size: var(--font-size-sm); color: var(--color-primary);">${escapeHtml(patient.fullName)}</div>
+          <div style="font-weight: 600; font-size: var(--font-size-sm); color: var(--color-primary);">${escapeHtml(patientFullName(patient))}</div>
           <div class="text-xs text-muted">DNI: ${escapeHtml(patient.dni)} | Tel: ${escapeHtml(patient.phone || 'N/A')}</div>
         </div>
         <button type="button" class="btn btn-outline btn-sm" id="btn-deselect-patient" style="min-height: 32px; padding: 2px 8px;">
@@ -625,12 +759,19 @@ async function loadBookingSlots() {
   const doctorId = parseInt(doctorSelect.value, 10);
   const date = dateInput.value;
 
+  // Catálogo de médicos aún no disponible; refreshDoctorCatalog volverá a cargar.
+  if (!Number.isInteger(doctorId)) {
+    slotSelect.innerHTML = '<option value="">-- Selecciona un horario --</option>';
+    slotSelect.disabled = true;
+    return;
+  }
+
   slotSelect.disabled = true;
   slotSelect.innerHTML = '<option value="">Cargando bloques disponibles...</option>';
 
   try {
     const slots = await apiClient.getDoctorSlots(doctorId, date);
-    const available = (slots || []).filter(s => s.isAvailable);
+    const available = (slots || []).filter(s => s.status === 'Available');
 
     countBadge.textContent = `${available.length} disp.`;
 
@@ -759,10 +900,12 @@ function renderAppointmentDetails(appt) {
   containerDetail.style.display = 'block';
 
   summaryId.textContent = appt.id;
-  summaryPatient.textContent = appt.patientName || `Paciente #${appt.patientId}`;
-  summaryDni.textContent = appt.patientDni || '—';
-  summaryDoctor.textContent = appt.doctorName || `Médico #${appt.doctorId}`;
-  summaryTime.textContent = `${appt.date} (${appt.startTime} - ${appt.endTime})`;
+  summaryPatient.textContent = appt.patient?.fullName || '—';
+  summaryDni.textContent = appt.patient?.dni || '—';
+  summaryDoctor.textContent = appt.doctor?.fullName || '—';
+  summaryTime.textContent = appt.slot
+    ? `${appt.slot.date} (${appt.slot.startTime} - ${appt.slot.endTime})`
+    : '—';
   summaryReason.textContent = appt.reason;
 
   const isAttended = appt.status === 'Attended';

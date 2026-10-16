@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema Clínico de Citas Médicas</title>
-  <link rel="stylesheet" href="css/tokens.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/views.css">
+  <link rel="stylesheet" href="/css/tokens.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/views.css">
 </head>
 <body>
   <!-- Header / Navigation Bar -->
@@ -150,8 +150,8 @@
                     <input type="email" id="reg-patient-email" class="form-input" placeholder="juan@ejemplo.com">
                   </div>
                   <div class="form-group">
-                    <label for="reg-patient-phone" class="form-label">Teléfono</label>
-                    <input type="tel" id="reg-patient-phone" class="form-input" placeholder="987654321">
+                    <label for="reg-patient-phone" class="form-label">Teléfono <span class="required">*</span></label>
+                    <input type="tel" id="reg-patient-phone" class="form-input" placeholder="987654321" required>
                   </div>
                 </div>
 
@@ -409,16 +409,44 @@
             <input type="date" id="slot-modal-date" class="form-input" required>
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-3);">
-            <div class="form-group">
-              <label for="slot-modal-start" class="form-label">Hora Inicio <span class="required">*</span></label>
-              <input type="time" id="slot-modal-start" class="form-input" required>
-            </div>
-            <div class="form-group">
-              <label for="slot-modal-end" class="form-label">Hora Fin <span class="required">*</span></label>
-              <input type="time" id="slot-modal-end" class="form-input" required>
+          <div class="form-group">
+            <label class="form-label">Hora Inicio <span class="required">*</span></label>
+            <div class="time-picker">
+              <select id="slot-start-hour" class="form-select time-part" aria-label="Hora de inicio"></select>
+              <span class="time-sep">:</span>
+              <select id="slot-start-minute" class="form-select time-part" aria-label="Minutos de inicio"></select>
+              <select id="slot-start-ampm" class="form-select time-part time-ampm" aria-label="Periodo de inicio">
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
             </div>
           </div>
+
+          <div class="form-group">
+            <label class="form-label">Hora Fin <span class="required">*</span></label>
+            <div class="time-picker">
+              <select id="slot-end-hour" class="form-select time-part" aria-label="Hora de fin"></select>
+              <span class="time-sep">:</span>
+              <select id="slot-end-minute" class="form-select time-part" aria-label="Minutos de fin"></select>
+              <select id="slot-end-ampm" class="form-select time-part time-ampm" aria-label="Periodo de fin">
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Duración rápida</label>
+            <div class="duration-chips">
+              <button type="button" class="chip" data-minutes="30">30 min</button>
+              <button type="button" class="chip" data-minutes="45">45 min</button>
+              <button type="button" class="chip" data-minutes="60">1 hora</button>
+              <button type="button" class="chip" data-minutes="90">1 h 30 min</button>
+              <button type="button" class="chip" data-minutes="120">2 horas</button>
+            </div>
+          </div>
+
+          <div class="time-preview" id="slot-time-preview" aria-live="polite"></div>
           <div class="form-error-text" id="slot-modal-time-error"></div>
         </div>
         <div class="modal-footer">
@@ -430,8 +458,8 @@
   </div>
 
   <!-- Scripts -->
-  <script src="js/toast.js"></script>
-  <script src="js/api-client.js"></script>
-  <script src="js/app.js"></script>
+  <script src="/js/toast.js"></script>
+  <script src="/js/api-client.js"></script>
+  <script src="/js/app.js"></script>
 </body>
 </html>

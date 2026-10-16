@@ -272,6 +272,73 @@ p {
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2) !important;
 }
 
+/* Selector de hora cómodo (12 h con AM/PM) */
+.time-picker {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.time-picker .time-part {
+  width: auto;
+  flex: 1 1 0;
+  min-width: 0;
+  padding-left: var(--spacing-2);
+  padding-right: var(--spacing-2);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-picker .time-ampm {
+  flex: 0 0 76px;
+  max-width: 76px;
+  font-weight: 600;
+}
+
+.time-sep {
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.duration-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+}
+
+.chip {
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-main);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  padding: var(--spacing-1) var(--spacing-3);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.chip:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.chip.active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.time-preview {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary);
+  min-height: 1.25rem;
+  margin-bottom: var(--spacing-1);
+}
+
 /* Cards & Surfaces */
 .card {
   background-color: var(--color-surface);
@@ -497,12 +564,21 @@ p {
   transform: translateY(0) scale(1);
 }
 
+/* El <form> envuelve body + footer: debe poder encoger para que el footer (Guardar) quede visible */
+.modal-container > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .modal-header {
   padding: var(--spacing-4) var(--spacing-5);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
 }
 
 .modal-title {
@@ -513,6 +589,8 @@ p {
 .modal-body {
   padding: var(--spacing-5);
   overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .modal-footer {
@@ -522,4 +600,5 @@ p {
   display: flex;
   justify-content: flex-end;
   gap: var(--spacing-3);
+  flex-shrink: 0;
 }
