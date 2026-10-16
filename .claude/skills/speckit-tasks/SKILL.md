@@ -1,16 +1,16 @@
 ---
 name: speckit-tasks
-description: Break a specified and planned feature into traceable, dependency-ordered tasks.
+description: Descomponer una feature especificada y planificada en tareas trazables ordenadas por dependencia.
 disable-model-invocation: true
 metadata:
   opencode/slash: "true"
 ---
 
-Create the implementation task list for $ARGUMENTS (or the current feature when omitted).
+Crear la lista de tareas de implementación para $ARGUMENTS (o la feature actual si se omite).
 
-1. Read `spec.md`, `plan.md`, `data-model.md`, contracts, checklists, and current project structure.
-2. If the spec has unresolved behavior decisions or required design artifacts are missing, report that tasks cannot be made reliable yet; do not fill the gaps.
-3. Create `tasks.md` with short, atomic checkbox tasks. Order dependencies from data/domain through application/persistence, API/UI, and tests as applicable.
-4. Link every task to its requirement IDs and acceptance criteria. Include meaningful test work and final `dotnet build`/`dotnet test` verification.
-5. Keep all tasks unchecked. Do not modify `src/` or `tests/`.
-6. Report task count, any uncovered requirements, and the next command.
+1. Leer `spec.md`, `plan.md`, `data-model.md`, contratos, checklists y la estructura actual del proyecto.
+2. Si la spec tiene decisiones de comportamiento sin resolver o faltan artefactos de diseño requeridos, reportar que aún no se pueden hacer tareas fiables; no rellenar los vacíos.
+3. Crear `tasks.md` con tareas cortas y atómicas con casilla. Ordenar las dependencias desde datos/dominio, pasando por aplicación/persistencia, API/UI y pruebas según corresponda.
+4. Enlazar cada tarea con sus IDs de requisito y criterios de aceptación. Incluir trabajo de pruebas significativo y verificación final con `dotnet build`/`dotnet test`.
+5. Mantener todas las tareas sin marcar. No modificar `src/` ni `tests/`.
+6. Reportar el número de tareas, los requisitos sin cubrir y el siguiente comando.

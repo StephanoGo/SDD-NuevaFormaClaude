@@ -1,16 +1,16 @@
 ---
 name: speckit-plan
-description: Produce a concise technical design, data model, and contracts for a specified feature.
+description: Producir un diseño técnico conciso, modelo de datos y contratos para una feature especificada.
 disable-model-invocation: true
 metadata:
   opencode/slash: "true"
 ---
 
-Plan the feature at $ARGUMENTS (or the current feature when omitted).
+Planificar la feature en $ARGUMENTS (o la feature actual si se omite).
 
-1. Read its `spec.md`, the constitution, affected module specs, current code, and only relevant shared contracts.
-2. Stop and report blockers if business clarifications remain unresolved. Do not resolve them by assumption.
-3. Create concise `plan.md` and `data-model.md`. Explain the selected architecture, affected modules, data ownership, invariants, persistence impact, error behavior, and verification approach. Check proposed technology against `.specify/memory/constitution.md`.
-4. Create `contracts/` with precise HTTP/JSON and repository contracts for interfaces the feature changes. If none change, add a brief note referencing the shared contract and stating that no new interface is introduced. Reuse shared contracts by reference instead of copying them.
-5. Keep rejected alternatives and implementation minutiae out unless they explain a material decision. Do not change `src/` or `tests/`.
-6. Report artifacts created, decisions still open, and the next command.
+1. Leer su `spec.md`, la constitución, las specs de los módulos afectados, el código actual y solo los contratos compartidos relevantes.
+2. Detenerse y reportar bloqueos si quedan aclaraciones de negocio sin resolver. No resolverlas por suposición.
+3. Crear `plan.md` y `data-model.md` concisos. Explicar la arquitectura elegida, los módulos afectados, la propiedad de los datos, las invariantes, el impacto en persistencia, el comportamiento de errores y el enfoque de verificación. Contrastar la tecnología propuesta con `.specify/memory/constitution.md`.
+4. Crear `contracts/` con contratos precisos HTTP/JSON y de repositorio para las interfaces que la feature cambia. Si ninguna cambia, añadir una nota breve que referencie el contrato compartido y afirme que no se introduce una interfaz nueva. Reutilizar los contratos compartidos por referencia en lugar de copiarlos.
+5. Mantener fuera las alternativas descartadas y los detalles de implementación, salvo que expliquen una decisión relevante. No cambiar `src/` ni `tests/`.
+6. Reportar los artefactos creados, las decisiones aún abiertas y el siguiente comando.

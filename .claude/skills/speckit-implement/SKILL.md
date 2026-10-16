@@ -1,15 +1,15 @@
 ---
 name: speckit-implement
-description: Implement an approved feature from its analyzed tasks and verify it with the full test suite.
+description: Implementar una feature aprobada desde sus tareas analizadas y verificarla con la suite de pruebas completa.
 disable-model-invocation: true
 metadata:
   opencode/slash: "true"
 ---
 
-Implement $ARGUMENTS (or the current feature) only after its latest `/speckit-analyze` result is `READY FOR IMPLEMENTATION`.
+Implementar $ARGUMENTS (o la feature actual) solo después de que su último resultado de `/speckit-analyze` sea `READY FOR IMPLEMENTATION`.
 
-1. Read the complete feature artifacts and implement only unchecked tasks backed by approved requirement IDs. If the spec or design is insufficient, stop and return to the relevant SDD command.
-2. This is the only Speckit command authorized to create or modify executable files in `src/` and `tests/`. Keep changes within scope; add/update tests for the acceptance and checklist cases.
-3. Run `dotnet build` and `dotnet test` from the repository root. Diagnose failures; do not mark related work complete unless both pass.
-4. Mark a task `[x]` only after its implementation and relevant tests pass. Leave other tasks unchecked.
-5. Report changed files, completed and remaining task IDs, build/test outcomes, and any blocker. Do not commit or publish changes.
+1. Leer todos los artefactos de la feature e implementar solo las tareas sin marcar respaldadas por IDs de requisitos aprobados. Si la spec o el diseño son insuficientes, detenerse y volver al comando SDD correspondiente.
+2. Este es el único comando de Speckit autorizado a crear o modificar archivos ejecutables en `src/` y `tests/`. Mantener los cambios dentro del alcance; añadir/actualizar pruebas para los casos de aceptación y checklist.
+3. Ejecutar `dotnet build` y `dotnet test` desde la raíz del repositorio. Diagnosticar fallos; no marcar trabajo relacionado como completo salvo que ambos pasen.
+4. Marcar una tarea `[x]` solo después de que su implementación y las pruebas relevantes pasen. Dejar las demás tareas sin marcar.
+5. Reportar los archivos modificados, los IDs de tareas completadas y pendientes, los resultados de build/pruebas y cualquier bloqueo. No hacer commit ni publicar cambios.

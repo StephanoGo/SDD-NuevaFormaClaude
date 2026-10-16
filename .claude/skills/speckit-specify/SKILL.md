@@ -1,16 +1,16 @@
 ---
 name: speckit-specify
-description: Create or refine a module feature specification using the project's SDD workflow.
+description: Crear o refinar la especificación de una feature de módulo usando el flujo SDD del proyecto.
 disable-model-invocation: true
 metadata:
   opencode/slash: "true"
 ---
 
-Create or refine a functional specification for: $ARGUMENTS
+Crear o refinar una especificación funcional para: $ARGUMENTS
 
-1. Read `CLAUDE.md`, `.specify/memory/constitution.md`, `specs/README.md`, the affected module spec, and relevant code.
-2. Keep the user's original request verbatim in the feature spec. Identify the owning module and affected modules.
-3. Ask about business decisions that change behavior. Never fill gaps with invented rules. Record unanswered questions and keep the spec in Draft until resolved.
-4. Create `specs/modulos/<module>/<feature-slug>/spec.md` with feature name, module, branch name, date, status, original request, In Scope, Out of Scope, Clarifications, functional requirements with stable module-prefixed IDs, and Given/When/Then acceptance criteria mapped to those IDs.
-5. Keep requirements user-visible and testable; do not put architecture or implementation choices in functional requirements.
-6. Do not modify `src/` or `tests/`, and do not create later-phase artifacts. Report the spec path, open clarifications, and next command.
+1. Leer `CLAUDE.md`, `.specify/memory/constitution.md`, `specs/README.md`, la spec del módulo afectado y el código relevante.
+2. Mantener la solicitud original del usuario textualmente en la spec de la feature. Identificar el módulo propietario y los módulos afectados.
+3. Preguntar por las decisiones de negocio que cambian el comportamiento. Nunca rellenar vacíos con reglas inventadas. Registrar las preguntas sin responder y mantener la spec en borrador hasta resolverlas.
+4. Crear `specs/modulos/<module>/<feature-slug>/spec.md` con nombre de la feature, módulo, nombre de rama, fecha, estado, solicitud original, alcance, fuera de alcance, aclaraciones, requisitos funcionales con IDs estables prefijados por módulo y criterios de aceptación Dado/Cuando/Entonces mapeados a esos IDs.
+5. Mantener los requisitos visibles para el usuario y verificables; no incluir arquitectura ni decisiones de implementación en los requisitos funcionales.
+6. No modificar `src/` ni `tests/`, y no crear artefactos de fases posteriores. Reportar la ruta de la spec, las aclaraciones abiertas y el siguiente comando.
