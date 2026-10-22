@@ -408,10 +408,12 @@ async function loadAgendaSlots() {
   if (!container) return;
   container.setAttribute('aria-busy', 'true');
   container.classList.remove('agenda-state-error');
+  updateAgendaMetrics(null);
   updateAgendaContext();
 
   // Aún no hay médico seleccionado (el catálogo se carga en refreshDoctorCatalog).
   if (state.currentDoctorId === null || Number.isNaN(state.currentDoctorId)) {
+    updateAgendaMetrics([]);
     container.setAttribute('aria-busy', 'false');
     container.setAttribute('aria-busy', 'false');
     container.innerHTML = `
@@ -437,6 +439,7 @@ async function loadAgendaSlots() {
     const slots = await apiClient.getDoctorSlots(state.currentDoctorId, state.currentDate);
     renderSlots(slots);
   } catch (error) {
+    updateAgendaMetrics(null);
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-title">Error al consultar la agenda</div>
@@ -456,6 +459,7 @@ function renderSlots(slots) {
   const countBadge = document.getElementById('agenda-slots-count');
   if (!container) return;
   container.setAttribute('aria-busy', 'false');
+  updateAgendaMetrics(slots || []);
 
   if (!slots || slots.length === 0) {
     const doctor = state.doctors.find(d => d.id === state.currentDoctorId);
@@ -506,6 +510,23 @@ function renderSlots(slots) {
       }).join('')}
     </div>
   `;
+}
+
+function updateAgendaMetrics(slots) {
+  const total = document.getElementById('agenda-total-count');
+  const availableCount = document.getElementById('agenda-available-count');
+  const reservedCount = document.getElementById('agenda-reserved-count');
+  if (!total || !availableCount || !reservedCount) return;
+
+  if (!Array.isArray(slots)) {
+    total.textContent = availableCount.textContent = reservedCount.textContent = '—';
+    return;
+  }
+
+  const available = slots.filter(slot => slot.status === 'Available').length;
+  total.textContent = String(slots.length);
+  availableCount.textContent = String(available);
+  reservedCount.textContent = String(slots.length - available);
 }
 
 // ============================================================================
@@ -690,6 +711,11 @@ function initBookingView() {
   const bookingSlotSelect = document.getElementById('booking-slot-select');
   const bookingReasonInput = document.getElementById('booking-reason-input');
   const btnConfirmBooking = document.getElementById('btn-confirm-booking');
+  const bookingSuccessDialog = document.getElementById('modal-booking-success');
+  document.getElementById('btn-close-booking-success').addEventListener('click', () => bookingSuccessDialog.close());
+  bookingSuccessDialog.addEventListener('click', event => {
+    if (event.target === bookingSuccessDialog) bookingSuccessDialog.close();
+  });
 
   // Switch search tabs
   tabDni.addEventListener('click', () => {
@@ -862,7 +888,7 @@ function initBookingView() {
           reason
         });
 
-        Toast.success(`¡Cita #${appointment.id} reservada con éxito para ${patientFullName(state.selectedPatient)}!`);
+        showBookingSuccess(appointment);
         bookingReasonInput.value = '';
         
         // Refresh slots in booking & agenda
@@ -1008,6 +1034,23 @@ function checkBookingReady() {
   const hasReason = !!reasonInput && !!reasonInput.value.trim();
 
   btn.disabled = !(hasPatient && hasSlot && hasReason);
+}
+
+function showBookingSuccess(appointment) {
+  const dialog = document.getElementById('modal-booking-success');
+  const description = document.getElementById('booking-success-description');
+  const detail = document.getElementById('booking-success-detail');
+  const doctorSelect = document.getElementById('booking-doctor-select');
+  const dateInput = document.getElementById('booking-date-input');
+  const slotSelect = document.getElementById('booking-slot-select');
+  const patientName = patientFullName(state.selectedPatient);
+  const doctorName = doctorSelect?.selectedOptions[0]?.textContent.trim();
+  const date = dateInput?.value ? formatAgendaDate(dateInput.value) : '';
+  const time = slotSelect?.selectedOptions[0]?.textContent.trim();
+
+  description.textContent = `La cita${appointment?.id ? ` #${appointment.id}` : ''} para ${patientName} se registró correctamente.`;
+  detail.textContent = [doctorName, date, time].filter(Boolean).join(' · ');
+  dialog.showModal();
 }
 
 // ============================================================================

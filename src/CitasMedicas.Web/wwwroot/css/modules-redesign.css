@@ -1,0 +1,198 @@
+/* Agenda and booking layouts aligned with the clinic redesign prototype. */
+.section-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.agenda-toolbar { align-items: flex-end; }
+.agenda-toolbar .toolbar-title-group h1 { font-size: clamp(1.8rem, 3vw, 2.15rem); }
+.agenda-toolbar .toolbar-title-group p { max-width: 760px; }
+
+.agenda-filters {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.35fr) minmax(180px, 1fr) auto auto;
+  align-items: end;
+  gap: 14px;
+  padding: 17px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 45, 66, .045);
+}
+
+.agenda-filters .form-group { min-width: 0; }
+.agenda-date-actions { flex-wrap: nowrap; }
+.agenda-date-actions .btn { min-width: 68px; }
+#btn-refresh-agenda { min-width: 120px; }
+
+.doctor-status-banner { min-height: 28px; }
+.doctor-status-active { gap: 9px; }
+
+.agenda-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 2px 0 18px;
+}
+
+.agenda-metric {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 74px;
+  padding: 14px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(15, 45, 66, .035);
+}
+
+.agenda-metric strong {
+  color: var(--color-primary-hover);
+  font-size: 25px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.agenda-metric span { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.agenda-metric-available strong { color: #20794a; }
+.agenda-metric-reserved strong { color: #9a6a00; }
+
+#view-agenda > .card > .card-header {
+  min-height: 66px;
+  padding-inline: 20px;
+}
+
+#view-agenda > .card > .card-header .card-title { font-size: var(--font-size-lg); }
+#view-agenda .slots-container { margin-top: 0; }
+#view-agenda .slots-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+#view-agenda .slot-card { min-height: 132px; border-radius: 12px; }
+
+.booking-page { display: grid; gap: 20px; }
+.booking-search-card { border-top: 3px solid #1489b8; }
+.booking-search-card > .card-header,
+.booking-form-card > .card-header { min-height: 62px; }
+
+.booking-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.booking-form-card { border-top: 3px solid #1489b8; min-width: 0; }
+.booking-search-card .card-body { padding-top: 18px; }
+.booking-search-card .search-toggle-tabs { margin-bottom: 16px; }
+.booking-search-card #form-search-dni,
+.booking-search-card #form-search-lastname { max-width: 760px; }
+.booking-search-card #input-search-dni,
+.booking-search-card #input-search-lastname { flex: 1; min-width: 0; }
+.booking-search-card #patient-search-results { margin-top: 12px; }
+.booking-search-card .patient-result-card { max-width: 880px; }
+
+.booking-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+}
+
+.booking-fields-grid .form-group { min-width: 0; }
+.booking-slot-field,
+.booking-reason-field { grid-column: 1 / -1; }
+.booking-confirm-button { width: 100%; margin-top: 4px; }
+
+.selected-patient-empty {
+  min-height: 60px;
+  margin-bottom: 18px;
+  padding: 14px;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.selected-patient-box {
+  margin-bottom: 18px;
+  border-style: solid;
+}
+
+@media (max-width: 1100px) {
+  .agenda-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .agenda-date-actions { grid-column: 1; }
+  #btn-refresh-agenda { grid-column: 2; justify-self: end; }
+}
+
+@media (max-width: 760px) {
+  .agenda-filters { grid-template-columns: 1fr; gap: 12px; }
+  .agenda-date-actions,
+  #btn-refresh-agenda { grid-column: auto; width: 100%; }
+  .agenda-date-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .agenda-date-actions .btn { min-width: 0; }
+  .agenda-metrics { gap: 8px; }
+  .agenda-metric { min-height: 70px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 5px; padding: 10px; }
+  .agenda-metric strong { font-size: 21px; }
+  .agenda-metric span { font-size: 10px; line-height: 1.2; }
+  .booking-search-card #form-search-dni,
+  .booking-search-card #form-search-lastname { flex-direction: column; }
+  .booking-search-card #form-search-dni .btn,
+  .booking-search-card #form-search-lastname .btn { width: 100%; }
+  .booking-search-card .patient-result-card { align-items: flex-start; }
+  #form-register-patient > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; gap: 0 !important; }
+}
+
+@media (max-width: 420px) {
+  .agenda-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .agenda-metric { padding: 8px; }
+  .agenda-metric span { font-size: 9px; }
+  .booking-fields-grid { grid-template-columns: 1fr; }
+  .booking-slot-field,
+  .booking-reason-field { grid-column: auto; }
+  .booking-search-card > .card-header { align-items: center; gap: 8px; }
+  #btn-toggle-new-patient { white-space: normal; }
+}
+
+.booking-success-dialog {
+  width: min(440px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 32px);
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  background: #fff;
+  color: var(--color-text-main);
+  box-shadow: 0 24px 70px rgba(15, 45, 66, .22);
+  text-align: center;
+}
+
+.booking-success-dialog::backdrop { background: rgba(15, 35, 52, .48); backdrop-filter: blur(3px); }
+
+.booking-success-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 34px 30px 30px;
+}
+
+.booking-success-icon {
+  display: grid;
+  width: 76px;
+  height: 76px;
+  place-items: center;
+  margin-bottom: 18px;
+  border: 1px solid #a7dfc2;
+  border-radius: 50%;
+  background: #e8f7ef;
+  color: #16834b;
+}
+
+.booking-success-icon svg { width: 43px; height: 43px; }
+.booking-success-content h2 { margin-bottom: 8px; font-size: 23px; letter-spacing: -.025em; }
+.booking-success-content > p { color: var(--color-text-muted); line-height: 1.55; }
+.booking-success-content .booking-success-detail { margin-top: 12px; color: var(--color-text-main); font-size: var(--font-size-sm); font-weight: 600; }
+.booking-success-content .btn { width: 100%; margin-top: 24px; }
+
+@media (max-width: 420px) {
+  .booking-success-content { padding: 28px 22px 22px; }
+  .booking-success-icon { width: 66px; height: 66px; }
+  .booking-success-icon svg { width: 38px; height: 38px; }
+}

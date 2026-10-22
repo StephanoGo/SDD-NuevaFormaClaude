@@ -7,9 +7,11 @@
   <link rel="stylesheet" href="/css/tokens.css">
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/views.css">
+  <link rel="stylesheet" href="/css/app-shell.css">
+  <link rel="stylesheet" href="/css/modules-redesign.css">
 </head>
 <body>
-  <!-- Header / Navigation Bar -->
+  <!-- Encabezado de la aplicación -->
   <header class="app-header">
     <div class="header-container">
       <a href="#" class="brand" aria-label="Ir al inicio de Citas Médicas">
@@ -20,29 +22,35 @@
         </svg>
         <span>Clínica Sanitas</span>
       </a>
-
-      <nav class="nav-tabs" role="tablist" aria-label="Navegación del sistema">
-        <button type="button" class="nav-tab active" role="tab" id="tab-btn-agenda" aria-selected="true" aria-controls="view-agenda" data-target="view-agenda">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-          Agenda Médica
-        </button>
-        <button type="button" class="nav-tab" role="tab" id="tab-btn-reservas" aria-selected="false" aria-controls="view-reservas" data-target="view-reservas">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-          Pacientes y Reservas
-        </button>
-        <button type="button" class="nav-tab" role="tab" id="tab-btn-atencion" aria-selected="false" aria-controls="view-atencion" data-target="view-atencion">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-          Atención Clínica
-        </button>
-        <button type="button" class="nav-tab" role="tab" id="tab-btn-historia" aria-selected="false" aria-controls="view-historia" data-target="view-historia">Historia Clínica</button>
-        <button type="button" class="nav-tab" role="tab" id="tab-btn-citas" aria-selected="false" aria-controls="view-citas" data-target="view-citas">Citas</button>
-        <button type="button" class="nav-tab" role="tab" id="tab-btn-catalogos" aria-selected="false" aria-controls="view-catalogos" data-target="view-catalogos">Programación</button>
-      </nav>
     </div>
   </header>
 
-  <!-- Main Content Container -->
-  <main class="main-content">
+  <div class="app-layout">
+    <aside class="app-sidebar" aria-label="Módulos de la clínica">
+      <nav class="nav-tabs" role="tablist" aria-label="Navegación del sistema">
+        <button type="button" class="nav-tab" role="tab" id="tab-btn-historia" aria-label="Historia Clínica" aria-selected="false" aria-controls="view-historia" data-target="view-historia">
+          <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.75h9l3 3v13.5H6z"/><path d="M14.5 3.75v4h3.5M9 12h6M9 15.5h6"/></svg><span class="nav-label">Historia Clínica</span><span class="nav-label-compact" aria-hidden="true">Historia</span>
+        </button>
+        <button type="button" class="nav-tab" role="tab" id="tab-btn-agenda" aria-label="Agenda Médica" aria-selected="false" aria-controls="view-agenda" data-target="view-agenda">
+          <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="15" rx="2"/><path d="M8 3.5v4M16 3.5v4M4 10h16M8 13.5h3M8 17h3"/></svg><span class="nav-label">Agenda Médica</span><span class="nav-label-compact" aria-hidden="true">Agenda</span>
+        </button>
+        <button type="button" class="nav-tab" role="tab" id="tab-btn-reservas" aria-label="Pacientes y Reservas" aria-selected="false" aria-controls="view-reservas" data-target="view-reservas">
+          <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19v-1.2A4.8 4.8 0 0 1 8.3 13h1.4a4.8 4.8 0 0 1 4.8 4.8V19M18 8v6M15 11h6"/></svg><span class="nav-label">Pacientes y Reservas</span><span class="nav-label-compact" aria-hidden="true">Pacientes</span>
+        </button>
+        <button type="button" class="nav-tab" role="tab" id="tab-btn-atencion" aria-label="Atención Clínica" aria-selected="false" aria-controls="view-atencion" data-target="view-atencion">
+          <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4.5h8a2 2 0 0 1 2 2v13H6v-13a2 2 0 0 1 2-2Z"/><path d="M9 4.5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 11h6M9 14.5h3M16 15v4M14 17h4"/></svg><span class="nav-label">Atención Clínica</span><span class="nav-label-compact" aria-hidden="true">Atención</span>
+        </button>
+        <button type="button" class="nav-tab" role="tab" id="tab-btn-citas" aria-label="Citas" aria-selected="false" aria-controls="view-citas" data-target="view-citas">
+          <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5.5" width="16" height="15" rx="2"/><path d="M8 3.5v4M16 3.5v4M4 10h16M8.5 15l2 2 5-5"/></svg><span class="nav-label">Citas</span><span class="nav-label-compact" aria-hidden="true">Citas</span>
+        </button>
+        <button type="button" class="nav-tab" role="tab" id="tab-btn-catalogos" aria-label="Programación" aria-selected="false" aria-controls="view-catalogos" data-target="view-catalogos">
+          <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v5m-2.5-2.5h5M8 12h8M9 16h6"/></svg><span class="nav-label">Programación</span><span class="nav-label-compact" aria-hidden="true">Médicos</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
     
     <!-- ====================================================================
          VISTA 1: AGENDA MÉDICA
@@ -50,8 +58,9 @@
     <section id="view-agenda" class="view-section active" role="tabpanel" aria-labelledby="tab-btn-agenda">
       <div class="toolbar agenda-toolbar">
         <div class="toolbar-title-group">
+          <span class="section-eyebrow">Organización diaria</span>
           <h1>Agenda Médica</h1>
-          <p class="text-muted">Consulta y administra los bloques horarios de atención por profesional de la salud.</p>
+          <p class="text-muted">Consulta la disponibilidad y los bloques de atención por profesional.</p>
         </div>
         <div class="toolbar-actions">
           <button type="button" class="btn btn-primary" id="btn-open-create-slot">
@@ -89,12 +98,18 @@
       <!-- Resumen del Médico Seleccionado -->
       <div id="doctor-status-banner" class="doctor-status-banner"></div>
 
+      <div class="agenda-metrics" aria-label="Resumen de bloques del día" aria-live="polite">
+        <article class="agenda-metric"><strong id="agenda-total-count">—</strong><span>Bloques del día</span></article>
+        <article class="agenda-metric agenda-metric-available"><strong id="agenda-available-count">—</strong><span>Disponibles</span></article>
+        <article class="agenda-metric agenda-metric-reserved"><strong id="agenda-reserved-count">—</strong><span>Reservados</span></article>
+      </div>
+
       <!-- Contenedor de Bloques -->
       <div class="card">
         <div class="card-header">
           <h2 class="card-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Bloques Horarios Registrados
+            Horario del día
           </h2>
           <span class="agenda-summary" id="agenda-slots-count" aria-live="polite" aria-atomic="true">Selecciona un médico y una fecha</span>
         </div>
@@ -142,18 +157,19 @@
     <section id="view-reservas" class="view-section" role="tabpanel" aria-labelledby="tab-btn-reservas">
       <div class="toolbar">
         <div class="toolbar-title-group">
+          <span class="section-eyebrow">Registro y reserva</span>
           <h1>Pacientes y Reserva de Citas</h1>
-          <p class="text-muted">Busca o da de alta pacientes clínicos y agenda su turno médico de forma atómica.</p>
+          <p class="text-muted">Encuentra al paciente y reserva un bloque disponible.</p>
         </div>
       </div>
 
-      <div class="booking-layout">
-        <!-- Columna Izquierda: Búsqueda y Registro de Paciente -->
-        <div class="card">
+      <div class="booking-page">
+        <!-- Búsqueda y alta del paciente: bloque superior de ancho completo -->
+        <section class="card booking-search-card" aria-labelledby="booking-search-title">
           <div class="card-header">
-            <h2 class="card-title">
+            <h2 class="card-title" id="booking-search-title">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              Gestión de Pacientes
+              Buscar o registrar paciente
             </h2>
             <button type="button" class="btn btn-outline btn-sm" id="btn-toggle-new-patient">
               + Nuevo Paciente
@@ -230,67 +246,58 @@
             </div>
 
           </div>
-        </div>
+        </section>
 
-        <!-- Columna Derecha: Formulario de Reserva -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-              Confirmación de Reserva
-            </h2>
-          </div>
-          <div class="card-body">
-            
-            <!-- Paciente Seleccionado -->
-            <div class="form-group">
-              <label class="form-label">Paciente Seleccionado</label>
-              <div id="selected-patient-display">
-                <div class="empty-state" style="padding: var(--spacing-4); border: 1px dashed var(--color-border); border-radius: var(--radius-md);">
-                  <span class="text-sm text-muted">Selecciona un paciente en el panel izquierdo para continuar.</span>
+        <div class="booking-workspace">
+          <section class="card booking-form-card" aria-labelledby="booking-form-title">
+            <div class="card-header">
+              <h2 class="card-title" id="booking-form-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Datos de la reserva
+              </h2>
+              <span class="soft-pill">Nueva cita</span>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <div class="form-label">Paciente seleccionado</div>
+                <div id="selected-patient-display">
+                  <div class="empty-state selected-patient-empty">
+                    <span class="text-sm text-muted">Selecciona un paciente en el panel superior para continuar.</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Selección de Médico y Fecha para la Cita -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-3);">
-              <div class="form-group">
-                <label for="booking-doctor-select" class="form-label">Médico <span class="required">*</span></label>
-                <select id="booking-doctor-select" class="form-select">
-                  <!-- Llenado por JS -->
-                </select>
+              <div class="booking-fields-grid">
+                <div class="form-group">
+                  <label for="booking-doctor-select" class="form-label">Médico <span class="required">*</span></label>
+                  <select id="booking-doctor-select" class="form-select"><!-- Llenado por JS --></select>
+                </div>
+                <div class="form-group">
+                  <label for="booking-date-input" class="form-label">Fecha <span class="required">*</span></label>
+                  <input type="date" id="booking-date-input" class="form-input">
+                </div>
+                <div class="form-group booking-slot-field">
+                  <label for="booking-slot-select" class="form-label">
+                    Horario disponible <span class="required">*</span>
+                    <span class="badge badge-available" id="booking-slots-count">0 disp.</span>
+                  </label>
+                  <select id="booking-slot-select" class="form-select" disabled>
+                    <option value="">Selecciona médico y fecha</option>
+                  </select>
+                  <span class="form-hint" id="booking-slot-hint">Solo se muestran bloques en estado Disponible.</span>
+                </div>
+                <div class="form-group booking-reason-field">
+                  <label for="booking-reason-input" class="form-label">Motivo de la cita <span class="required">*</span></label>
+                  <input type="text" id="booking-reason-input" class="form-input" placeholder="Ej. Control anual" required>
+                </div>
               </div>
 
-              <div class="form-group">
-                <label for="booking-date-input" class="form-label">Fecha <span class="required">*</span></label>
-                <input type="date" id="booking-date-input" class="form-input">
-              </div>
+              <button type="button" class="btn btn-primary booking-confirm-button" id="btn-confirm-booking" disabled>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Confirmar reserva
+              </button>
             </div>
-
-            <!-- Bloque Horario Disponible -->
-            <div class="form-group">
-              <label for="booking-slot-select" class="form-label">
-                Horario Disponible <span class="required">*</span>
-                <span class="badge badge-available" id="booking-slots-count" style="font-size: 10px;">0 disp.</span>
-              </label>
-              <select id="booking-slot-select" class="form-select" disabled>
-                <option value="">Selecciona médico y fecha</option>
-              </select>
-              <span class="form-hint" id="booking-slot-hint">Solo se muestran bloques en estado Disponible.</span>
-            </div>
-
-            <!-- Motivo de la Cita -->
-            <div class="form-group">
-              <label for="booking-reason-input" class="form-label">Motivo de la Cita <span class="required">*</span></label>
-              <input type="text" id="booking-reason-input" class="form-input" placeholder="Ej. Dolor abdominal agudo, control anual" required>
-            </div>
-
-            <!-- Botón de Confirmación -->
-            <button type="button" class="btn btn-primary" id="btn-confirm-booking" style="width: 100%; margin-top: var(--spacing-3);" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-              Confirmar Reserva
-            </button>
-          </div>
+          </section>
         </div>
       </div>
     </section>
@@ -419,12 +426,21 @@
       </div>
     </section>
 
-  </main>
+    </main>
 
-  <!-- Footer -->
-  <footer class="app-footer">
-    <p>Sistema Clínico de Citas Médicas &copy; 2026 — Arquitectura Limpia .NET 10 y Vanilla Web SPA</p>
-  </footer>
+  </div>
+
+  <dialog id="modal-booking-success" class="booking-success-dialog" aria-labelledby="booking-success-title" aria-describedby="booking-success-description">
+    <div class="booking-success-content">
+      <div class="booking-success-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m13 24 7.5 7.5L36 16"/></svg>
+      </div>
+      <h2 id="booking-success-title">Reserva confirmada</h2>
+      <p id="booking-success-description">La cita se registró correctamente.</p>
+      <p class="booking-success-detail" id="booking-success-detail"></p>
+      <button type="button" class="btn btn-primary" id="btn-close-booking-success">Aceptar</button>
+    </div>
+  </dialog>
 
   <!-- Modal: Crear Nuevo Bloque de Agenda -->
   <div id="modal-create-slot" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-slot-title">
