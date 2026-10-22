@@ -6,6 +6,32 @@ namespace CitasMedicas.Tests.Domain.Appointments;
 public class AppointmentTests
 {
     [Fact]
+    public void Cancel_WhenPending_ShouldTransitionToCancelled()
+    {
+        var appointment = Appointment.Rehydrate(100, 10, 1, "Consulta", AppointmentStatus.Pending, null, null);
+
+        var result = appointment.Cancel();
+
+        result.IsSuccess.Should().BeTrue();
+        appointment.Status.Should().Be(AppointmentStatus.Cancelled);
+    }
+
+    [Theory]
+    [InlineData(AppointmentStatus.Attended)]
+    [InlineData(AppointmentStatus.Cancelled)]
+    public void Cancel_WhenNotPending_ShouldRejectWithoutChangingStatus(AppointmentStatus status)
+    {
+        var appointment = Appointment.Rehydrate(100, 10, 1, "Consulta", status, "Diagnóstico", null);
+
+        var result = appointment.Cancel();
+
+        result.IsFailure.Should().BeTrue();
+        result.Error.Code.Should().Be("APPOINTMENT_NOT_PENDING");
+        appointment.Status.Should().Be(status);
+        appointment.Diagnosis.Should().Be("Diagnóstico");
+    }
+
+    [Fact]
     [Trait("RF", "RF-022")]
     public void RegisterAttention_WithDiagnosisAndPrescription_ShouldTransitionToAttended()
     {

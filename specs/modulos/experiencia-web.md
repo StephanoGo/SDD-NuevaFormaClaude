@@ -1,5 +1,7 @@
 # Criterios comunes de experiencia web
 
+La programación de médicos y especialidades tiene su entrega en [`006-programacion-web`](../006-programacion-web/spec.md).
+
 Aplican a las pantallas de todos los módulos:
 
 - Mantener contraste de texto normal de al menos 4.5:1.

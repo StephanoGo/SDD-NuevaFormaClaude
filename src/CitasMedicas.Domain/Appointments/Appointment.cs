@@ -58,6 +58,15 @@ public sealed class Appointment
         return Result.Success();
     }
 
+    public Result Cancel()
+    {
+        if (Status != AppointmentStatus.Pending)
+            return AppointmentErrors.NotPending;
+
+        Status = AppointmentStatus.Cancelled;
+        return Result.Success();
+    }
+
     internal void AssignId(int id)
     {
         if (Id != 0)

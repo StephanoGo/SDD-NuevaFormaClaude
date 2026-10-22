@@ -150,4 +150,84 @@ public sealed class AppointmentService
             new SlotSummaryResponse(slot.Id, slot.Date.ToString("yyyy-MM-dd"), slot.StartTime.ToString("HH:mm"), slot.EndTime.ToString("HH:mm"))
         );
     }
+
+    public async Task<Result<IReadOnlyList<AppointmentResponse>>> ListAsync(
+        int? patientId, int? doctorId, DateOnly? date, CancellationToken cancellationToken = default)
+    {
+        if (!patientId.HasValue && !doctorId.HasValue && !date.HasValue)
+            return ApiFilterErrors.Required;
+        if (patientId is <= 0 || doctorId is <= 0)
+            return ApiFilterErrors.Invalid;
+        if (patientId.HasValue && await _patientRepository.GetByIdAsync(patientId.Value, cancellationToken) is null)
+            return PatientErrors.NotFound;
+
+        var appointments = await _appointmentRepository.ListAppointmentsAsync(patientId, doctorId, date, cancellationToken);
+        var result = new List<AppointmentResponse>(appointments.Count);
+        foreach (var appointment in appointments)
+        {
+            var item = await BuildResponseAsync(appointment, cancellationToken);
+            if (item is not null) result.Add(item);
+        }
+        return Result<IReadOnlyList<AppointmentResponse>>.Success(result);
+    }
+
+    public async Task<Result<AppointmentResponse>> CancelAsync(int appointmentId, CancellationToken cancellationToken = default)
+    {
+        var appointment = await _appointmentRepository.GetAppointmentByIdAsync(appointmentId, cancellationToken);
+        if (appointment is null) return AppointmentErrors.NotFound;
+        var cancelled = appointment.Cancel();
+        if (cancelled.IsFailure) return cancelled.Error;
+        var persisted = await _appointmentRepository.CancelAsync(appointment, cancellationToken);
+        if (persisted.IsFailure) return persisted.Error;
+        var response = await BuildResponseAsync(persisted.Value, cancellationToken);
+        return response is null ? AppointmentErrors.NotFound : response;
+    }
+
+    public async Task<Result<IReadOnlyList<ClinicalHistoryEntryResponse>>> GetClinicalHistoryAsync(
+        int patientId, CancellationToken cancellationToken = default)
+    {
+        if (await _patientRepository.GetByIdAsync(patientId, cancellationToken) is null)
+            return PatientErrors.NotFound;
+        var appointments = await _appointmentRepository.ListAppointmentsAsync(patientId, null, null, cancellationToken);
+        var result = new List<ClinicalHistoryEntryResponse>();
+        foreach (var appointment in appointments.Where(x => x.Status == AppointmentStatus.Attended))
+        {
+            var slot = await _appointmentRepository.GetSlotByIdAsync(appointment.ScheduleSlotId, cancellationToken);
+            var doctor = slot is null ? null : await _doctorRepository.GetByIdAsync(slot.DoctorId, cancellationToken);
+            if (slot is null || doctor is null || appointment.Diagnosis is null) continue;
+            result.Add(new ClinicalHistoryEntryResponse(appointment.Id, appointment.Reason, appointment.Diagnosis,
+                appointment.Prescription, new DoctorSummaryResponse(doctor.Id, doctor.FullName, doctor.Specialty),
+                new SlotSummaryResponse(slot.Id, slot.Date.ToString("yyyy-MM-dd"), slot.StartTime.ToString("HH:mm"), slot.EndTime.ToString("HH:mm"))));
+        }
+        return Result<IReadOnlyList<ClinicalHistoryEntryResponse>>.Success(result
+            .OrderByDescending(x => x.Slot.Date, StringComparer.Ordinal)
+            .ThenByDescending(x => x.Slot.StartTime, StringComparer.Ordinal)
+            .ThenByDescending(x => x.AppointmentId).ToList());
+    }
+
+    private async Task<AppointmentResponse?> BuildResponseAsync(Appointment appointment, CancellationToken cancellationToken)
+    {
+        var slot = await _appointmentRepository.GetSlotByIdAsync(appointment.ScheduleSlotId, cancellationToken);
+        var patient = await _patientRepository.GetByIdAsync(appointment.PatientId, cancellationToken);
+        var doctor = slot is null ? null : await _doctorRepository.GetByIdAsync(slot.DoctorId, cancellationToken);
+        if (slot is null || patient is null || doctor is null) return null;
+        return new AppointmentResponse(appointment.Id, appointment.Status.ToString(), appointment.Reason,
+            appointment.Diagnosis, appointment.Prescription,
+            new PatientSummaryResponse(patient.Id, patient.Dni.Value, patient.FullName),
+            new DoctorSummaryResponse(doctor.Id, doctor.FullName, doctor.Specialty),
+            new SlotSummaryResponse(slot.Id, slot.Date.ToString("yyyy-MM-dd"), slot.StartTime.ToString("HH:mm"), slot.EndTime.ToString("HH:mm")));
+    }
+}
+
+internal static class ApiFilterErrors
+{
+    public static readonly Error Required = Error.Validation("VALIDATION_FORMAT", "Se requiere al menos un filtro de búsqueda.");
+    public static readonly Error Invalid = Error.Validation("VALIDATION_FORMAT", "Los identificadores deben ser enteros positivos.");
+}
+
+public sealed class ClinicalHistoryService(AppointmentService appointments)
+{
+    public Task<Result<IReadOnlyList<ClinicalHistoryEntryResponse>>> GetByPatientAsync(
+        int patientId, CancellationToken cancellationToken = default) =>
+        appointments.GetClinicalHistoryAsync(patientId, cancellationToken);
 }

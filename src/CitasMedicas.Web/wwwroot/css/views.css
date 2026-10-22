@@ -1,0 +1,521 @@
+/* Shell & App Navigation Layout */
+.app-header {
+  background-color: rgba(255, 255, 255, .96);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 18px rgba(15, 45, 66, .045);
+  backdrop-filter: blur(14px);
+}
+
+.header-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.brand-icon {
+  width: 28px;
+  height: 28px;
+  color: var(--color-primary);
+  padding: 4px;
+  background: var(--color-primary-light);
+  border-radius: 10px;
+}
+
+.nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+  height: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  overscroll-behavior-x: contain;
+}
+
+.table-responsive { width: 100%; overflow-x: auto; }
+.table-responsive table { width: 100%; border-collapse: collapse; min-width: 620px; }
+.table-responsive th, .table-responsive td { padding: var(--spacing-3); border-bottom: 1px solid var(--color-border); text-align: left; vertical-align: top; }
+.table-responsive th { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.history-patient { margin: var(--spacing-2) var(--spacing-2) 0 0; }
+
+.nav-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  height: 100%;
+  padding: 0 var(--spacing-4);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  text-decoration: none;
+}
+
+.nav-tab:hover {
+  color: var(--color-text-main);
+}
+
+.nav-tab:focus-visible { outline-offset: -4px; }
+
+.nav-tab.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: 600;
+  background: linear-gradient(180deg, transparent 45%, rgba(8, 119, 168, .06));
+}
+
+.main-content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 48px) clamp(16px, 3vw, 40px);
+  min-height: calc(100vh - 64px - 60px);
+}
+
+.view-section {
+  display: none;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.view-section.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.app-footer {
+  text-align: center;
+  padding: var(--spacing-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  border-top: 1px solid var(--color-border);
+  background-color: rgba(255, 255, 255, .96);
+}
+
+/* Page Header Toolbar */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-8);
+  padding-bottom: var(--spacing-5);
+  border-bottom: 1px solid rgba(203, 218, 228, .72);
+}
+
+.toolbar-title-group h1 {
+  font-size: clamp(1.65rem, 2.5vw, 2.15rem);
+  letter-spacing: -.035em;
+  margin-bottom: var(--spacing-1);
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-3);
+}
+
+/* ==========================================================================
+   Vista 1: Agenda MÃ©dica (#tab-agenda)
+   ========================================================================== */
+.agenda-filters {
+  background-color: rgba(255, 255, 255, .96);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4) var(--spacing-5);
+  margin-bottom: var(--spacing-5);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--spacing-4);
+}
+
+.agenda-filters .form-group {
+  margin-bottom: 0;
+  min-width: 0;
+  flex: 1;
+}
+
+.toolbar-title-group p { max-width: 720px; line-height: 1.65; }
+
+.toolbar-title-group p { max-width: 720px; line-height: 1.65; }
+
+.agenda-toolbar { margin-bottom: var(--spacing-5); }
+.agenda-toolbar .toolbar-title-group h1 { font-size: clamp(1.6rem, 3vw, 2rem); letter-spacing: -0.025em; }
+.agenda-filters { align-items: end; box-shadow: 0 4px 18px rgba(15, 45, 66, .045);
+  backdrop-filter: blur(14px); }
+.agenda-filter-doctor { flex: 1.4 !important; }
+.agenda-date-actions { display: flex; gap: var(--spacing-2); flex-wrap: wrap; }
+.agenda-date-actions .btn { min-width: 68px; }
+.doctor-status-banner { margin-bottom: var(--spacing-4); }
+.doctor-status-active { font-size: var(--font-size-sm); color: var(--color-text-muted); display: flex; align-items: center; gap: var(--spacing-2); flex-wrap: wrap; }
+.doctor-status-inactive { background: #fef2f2; border: 1px solid #fecaca; padding: var(--spacing-3); border-radius: var(--radius-md); font-size: var(--font-size-sm); color: #991b1b; display: flex; align-items: center; gap: var(--spacing-2); }
+.agenda-summary { display: inline-flex; align-items: center; max-width: 100%; color: #334155; font-size: var(--font-size-sm); font-weight: 600; line-height: 1.4; }
+.agenda-summary-error { color: var(--status-reserved-text); }
+
+.doctor-badge-status {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--spacing-2);
+}
+
+/* Slots Grid */
+.slots-container {
+  margin-top: var(--spacing-4);
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: var(--spacing-4);
+}
+
+.slot-card {
+  background-color: rgba(255, 255, 255, .96);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 136px;
+  box-shadow: 0 4px 18px rgba(15, 45, 66, .045);
+  backdrop-filter: blur(14px);
+  border-left: 4px solid var(--color-primary);
+  min-width: 0;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+.slot-card-available { border-left-color: #15803d; background: linear-gradient(110deg, #f0fdf4 0, #fff 34%); }
+.slot-card-reserved { border-left-color: #b91c1c; background: linear-gradient(110deg, #fff7f7 0, #fff 34%); }
+.slot-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid; border-radius: var(--radius-pill); font-size: var(--font-size-xs); font-weight: 700; white-space: nowrap; }
+.slot-status-available { color: #166534; border-color: #86efac; background: #dcfce7; }
+.slot-status-reserved { color: #991b1b; border-color: #fca5a5; background: #fee2e2; }
+.agenda-state { min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-3); padding: var(--spacing-6); text-align: center; color: var(--color-text-muted); }
+.agenda-state-error .empty-state-title { color: #991b1b; }
+.agenda-spinner { width: 28px; height: 28px; border: 3px solid #bfdbfe; border-top-color: var(--color-primary); border-radius: 50%; animation: spin .8s linear infinite; }
+.slot-time { gap: var(--spacing-2); }
+
+.slot-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.slot-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-2);
+}
+
+.slot-time {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text-main);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.slot-body {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.slot-patient {
+  font-weight: 500;
+  color: var(--color-text-main);
+  margin-top: var(--spacing-1);
+  word-break: break-word;
+}
+
+/* ==========================================================================
+   Vista 2: Pacientes y Reserva (#tab-reservas)
+   ========================================================================== */
+.booking-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: var(--spacing-6);
+  align-items: start;
+}
+
+.search-toggle-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--spacing-4);
+}
+
+.search-tab-btn {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.search-tab-btn.active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: 600;
+}
+
+.patient-result-card {
+  background-color: #f8fafc;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3) var(--spacing-4);
+  margin-bottom: var(--spacing-3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-2);
+}
+
+.patient-result-card.is-selected {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary-light);
+}
+
+.patient-info-name {
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+.patient-info-meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.selected-patient-box {
+  background-color: var(--color-primary-light);
+  border: 1px dashed var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3) var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ==========================================================================
+   Vista 3: AtenciÃ³n ClÃ­nica (#tab-atencion)
+   ========================================================================== */
+.attention-layout {
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}
+
+.search-appointment-bar {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: flex-end;
+}
+
+.appointment-summary-card {
+  border-left: 4px solid var(--color-primary);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-label {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.summary-value {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-main);
+}
+
+.attended-banner {
+  background-color: var(--status-attended-bg);
+  border: 1px solid var(--status-attended-border);
+  color: var(--status-attended-text);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-3) var(--spacing-4);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: var(--spacing-4);
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 900px) {
+  .booking-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-container {
+    height: auto;
+    padding: var(--spacing-2) var(--spacing-3);
+    flex-direction: column;
+    gap: var(--spacing-2);
+  }
+
+  .nav-tabs {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    min-height: 48px;
+  }
+
+  .nav-tab {
+    padding: var(--spacing-2) var(--spacing-2);
+    font-size: var(--font-size-xs);
+    flex: 0 0 auto;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .toolbar-actions .btn {
+    width: 100%;
+  }
+
+  .agenda-filters {
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--spacing-4);
+  }
+
+  .agenda-filters .form-group, .agenda-filter-doctor { width: 100%; min-width: 0; flex: none !important; }
+  .agenda-date-actions { width: 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .agenda-date-actions .btn { min-width: 0; padding-inline: var(--spacing-2); }
+  #btn-refresh-agenda { width: 100%; }
+  .card-header { align-items: flex-start; flex-direction: column; }
+  .agenda-summary { overflow-wrap: anywhere; }
+
+  .slots-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-appointment-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .header-container { align-items: stretch; height: auto; flex-direction: column; gap: var(--spacing-2); padding-top: var(--spacing-2); }
+  .nav-tabs { min-height: 48px; }
+  .agenda-filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .agenda-date-actions { grid-column: 1 / -1; }
+  #btn-refresh-agenda { justify-self: start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agenda-spinner { animation-duration: 1.8s; }
+  .view-section { animation: none; }
+}
+
+/* Sistema visual común: Clínica Sanitas */
+.app-header {
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 4px 18px rgba(15,45,66,.045);
+  backdrop-filter: blur(14px);
+}
+.header-container, .main-content { max-width: 1440px; }
+.brand-icon { padding: 4px; background: var(--color-primary-light); border-radius: 10px; }
+.nav-tab.active { background: linear-gradient(180deg, transparent 45%, rgba(8,119,168,.06)); }
+.main-content { padding: clamp(24px,4vw,48px) clamp(16px,3vw,40px); }
+.app-footer { background: rgba(255,255,255,.75); }
+.toolbar { margin-bottom: var(--spacing-8); padding-bottom: var(--spacing-5); border-bottom: 1px solid rgba(203,218,228,.72); }
+.toolbar-title-group h1 { font-size: clamp(1.65rem,2.5vw,2.15rem); letter-spacing: -.035em; }
+.toolbar-title-group p { max-width: 720px; line-height: 1.65; }
+.card { border-color: #e1eaf0; box-shadow: 0 2px 8px rgba(15,45,66,.035), 0 12px 28px rgba(15,45,66,.035); }
+.card-header, .card-footer { background: #fbfdfe; }
+.card-body { padding: var(--spacing-6); }
+.booking-layout { gap: var(--spacing-5); }
+.booking-layout > .card { min-width: 0; }
+.booking-layout > .card:first-child { border-top: 3px solid #1489b8; }
+.booking-layout > .card:last-child { border-top: 3px solid #15947b; }
+.search-tab-btn { min-height: 44px; }
+.patient-result-card { background: #fbfdfe; transition: border-color var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast); }
+.patient-result-card:hover { border-color: #9cc7d9; box-shadow: var(--shadow-sm); }
+.patient-result-card.is-selected { box-shadow: 0 0 0 3px rgba(8,119,168,.09); }
+.summary-item { padding: var(--spacing-3); background: #f7fafc; border: 1px solid #e8eff3; border-radius: var(--radius-md); }
+.appointment-summary-card { overflow: hidden; }
+.appointment-summary-card .card-header { background: linear-gradient(110deg,#eaf6fb,#fff 70%); }
+#view-historia > .card, #view-citas > .card, #view-catalogos > .card { border-top: 3px solid var(--color-primary); }
+.table-responsive tbody tr { transition: background-color var(--transition-fast); }
+.table-responsive tbody tr:hover { background: #f6fafc; }
+.table-responsive th { font-weight: 700; letter-spacing: .015em; }
+.modal-container { border: 1px solid rgba(255,255,255,.65); }
+
+@media (max-width: 640px) {
+  .main-content { padding: var(--spacing-5) var(--spacing-3); }
+  .toolbar { padding-bottom: var(--spacing-4); margin-bottom: var(--spacing-5); }
+  .card-body { padding: var(--spacing-4); }
+  .card-header { padding: var(--spacing-4); }
+  .search-appointment-bar { flex-direction: column; align-items: stretch; }
+  .search-appointment-bar .btn { width: 100%; }
+  #form-search-dni, #form-search-lastname { flex-direction: column; }
+  #form-search-dni .btn, #form-search-lastname .btn { width: 100%; }
+  .patient-result-card { align-items: flex-start; flex-direction: column; }
+  .patient-result-card .btn { width: 100%; }
+  .summary-grid { grid-template-columns: 1fr; }
+  .modal-backdrop { padding: var(--spacing-2); align-items: flex-end; }
+  .modal-container { max-height: calc(100dvh - 16px); border-radius: 18px 18px 8px 8px; overflow-y: auto; }
+}
+@media (min-width: 641px) and (max-width: 900px) {
+  .main-content { padding: var(--spacing-6) var(--spacing-4); }
+  .card-body { padding: var(--spacing-5); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

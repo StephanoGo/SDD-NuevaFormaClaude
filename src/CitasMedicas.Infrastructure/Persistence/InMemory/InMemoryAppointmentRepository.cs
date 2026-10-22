@@ -105,6 +105,44 @@ public sealed class InMemoryAppointmentRepository : IAppointmentRepository
         }
     }
 
+    public Task<IReadOnlyList<Appointment>> ListAppointmentsAsync(int? patientId, int? doctorId, DateOnly? date, CancellationToken cancellationToken = default)
+    {
+        lock (_lock)
+        {
+            var rows = _appointments.Where(a =>
+                    (!patientId.HasValue || a.PatientId == patientId.Value) &&
+                    (!doctorId.HasValue || _slots.Any(s => s.Id == a.ScheduleSlotId && s.DoctorId == doctorId.Value)) &&
+                    (!date.HasValue || _slots.Any(s => s.Id == a.ScheduleSlotId && s.Date == date.Value)))
+                .OrderBy(a => _slots.First(s => s.Id == a.ScheduleSlotId).Date)
+                .ThenBy(a => _slots.First(s => s.Id == a.ScheduleSlotId).StartTime)
+                .ThenBy(a => a.Id)
+                .Select(Clone).ToList();
+            return Task.FromResult<IReadOnlyList<Appointment>>(rows);
+        }
+    }
+
+    public Task<Result<Appointment>> CancelAsync(Appointment appointment, CancellationToken cancellationToken = default)
+    {
+        lock (_lock)
+        {
+            var appointmentIndex = _appointments.FindIndex(a => a.Id == appointment.Id && a.Status == AppointmentStatus.Pending);
+            if (appointmentIndex < 0)
+                return Task.FromResult<Result<Appointment>>(AppointmentErrors.NotPending);
+
+            var slotIndex = _slots.FindIndex(s => s.Id == _appointments[appointmentIndex].ScheduleSlotId && s.Status == ScheduleSlotStatus.Reserved);
+            if (slotIndex < 0)
+                return Task.FromResult<Result<Appointment>>(AppointmentErrors.NotPending);
+
+            var current = _appointments[appointmentIndex];
+            var cancelled = Appointment.Rehydrate(current.Id, current.ScheduleSlotId, current.PatientId,
+                current.Reason, AppointmentStatus.Cancelled, current.Diagnosis, current.Prescription);
+            var slot = _slots[slotIndex];
+            _slots[slotIndex] = ScheduleSlot.Rehydrate(slot.Id, slot.DoctorId, slot.Date, slot.StartTime, slot.EndTime, ScheduleSlotStatus.Available);
+            _appointments[appointmentIndex] = cancelled;
+            return Task.FromResult<Result<Appointment>>(Clone(cancelled));
+        }
+    }
+
     public Task<Result<Appointment>> RegisterAttentionAsync(Appointment appointment, CancellationToken cancellationToken = default)
     {
         lock (_lock)

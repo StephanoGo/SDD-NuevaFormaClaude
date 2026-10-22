@@ -6,7 +6,7 @@
 
 Este documento conserva las rutas HTTP, formatos y errores usados por los clientes. Las interfaces internas de repositorio y el código de implementación pueden cambiar; consultar el código fuente vigente.
 
-Los endpoints de catálogo para alta, edición, listados y desactivación lógica de médicos/especialidades se definen en [`003-persistencia-sql-server/contracts/persistence-and-catalog-contracts.md`](../003-persistencia-sql-server/contracts/persistence-and-catalog-contracts.md).
+Los endpoints de catálogo para alta, edición, listados y desactivación lógica de médicos/especialidades se definen en [`003-persistencia-sql-server/contracts/persistence-and-catalog-contracts.md`](../../003-persistencia-sql-server/contracts/persistence-and-catalog-contracts.md).
 
 > Las firmas se describen en tablas, sin código C#. La implementación las traduce literalmente.
 
@@ -56,6 +56,9 @@ Los endpoints de catálogo para alta, edición, listados y desactivación lógic
 | E6 | `POST` | `/api/appointments` | Reservar cita | RF-015 – RF-021 |
 | E7 | `POST` | `/api/appointments/{appointmentId}/attention` | Registrar atención | RF-022 – RF-025 |
 | E8 | `GET` | `/api/appointments/{appointmentId}` | Consultar cita | RF-026 |
+| E9 | `GET` | `/api/appointments?patientId={id}&doctorId={id}&date={fecha}` | Listar citas con uno o más filtros | RF-CIT-05–07 |
+| E10 | `POST` | `/api/appointments/{appointmentId}/cancellation` | Cancelar cita pendiente y liberar bloque | RF-CIT-06, 08 |
+| E11 | `GET` | `/api/patients/{patientId}/clinical-history` | Consultar historia clínica concluida | RF-HC-01–04 |
 
 > No existen endpoints de edición ni eliminación (spec §9). Esto refuerza RF-025: una cita *Atendida* no tiene ninguna vía de modificación.
 
@@ -256,6 +259,18 @@ Los endpoints de catálogo para alta, edición, listados y desactivación lógic
 ```
 
 `diagnosis` y `prescription` son `null` mientras la cita esté en `Pending`.
+
+### E9 — Listar citas
+
+`GET /api/appointments` acepta uno o más parámetros `patientId`, `doctorId` y `date` (`yyyy-MM-dd`). Los filtros se combinan con AND. Responde `200 AppointmentResponse[]` con todos los estados, orden ascendente por fecha/hora/ID; sin filtros o formato inválido responde `400 VALIDATION_FORMAT`. `patientId` inexistente responde `404 PATIENT_NOT_FOUND`.
+
+### E10 — Cancelar cita
+
+`POST /api/appointments/{appointmentId}/cancellation` cancela solo una cita Pending. Responde `200 AppointmentResponse` con estado `Cancelled` y el bloque asociado vuelve a `Available` en la misma operación atómica. Cita no pendiente: `409 APPOINTMENT_NOT_PENDING`; ID inexistente: `404 APPOINTMENT_NOT_FOUND`.
+
+### E11 — Historia clínica
+
+`GET /api/patients/{patientId}/clinical-history` devuelve `200` con entradas `{ appointmentId, reason, diagnosis, prescription, doctor, slot }`, solo atenciones concluidas, ordenadas por fecha/hora de cita descendente. Paciente existente sin atenciones devuelve `[]`; inexistente devuelve `404 PATIENT_NOT_FOUND`.
 
 ---
 

@@ -239,6 +239,42 @@ public sealed class SqlServerClinicRepository(ClinicDbContext db, ClinicClock cl
         return ToDomain(row, attention);
     }
 
+    public async Task<IReadOnlyList<Appointment>> ListAppointmentsAsync(int? patientId, int? doctorId, DateOnly? date, CancellationToken cancellationToken = default)
+    {
+        var query = from appointment in db.Appointments.AsNoTracking()
+                    join slot in db.ScheduleSlots.AsNoTracking() on appointment.ScheduleSlotId equals slot.Id
+                    where (!patientId.HasValue || appointment.PatientId == patientId.Value)
+                       && (!doctorId.HasValue || slot.DoctorId == doctorId.Value)
+                       && (!date.HasValue || slot.Date == date.Value)
+                    orderby slot.Date, slot.StartTime, appointment.Id
+                    select new { appointment, slot };
+        var rows = await query.ToListAsync(cancellationToken);
+        var ids = rows.Select(x => x.appointment.Id).ToArray();
+        var attentions = await db.Attentions.AsNoTracking().Where(x => ids.Contains(x.AppointmentId))
+            .ToDictionaryAsync(x => x.AppointmentId, cancellationToken);
+        return rows.Select(x => ToDomain(x.appointment, attentions.GetValueOrDefault(x.appointment.Id))).ToList();
+    }
+
+    public async Task<Result<Appointment>> CancelAsync(Appointment appointment, CancellationToken cancellationToken = default)
+    {
+        await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);
+        var current = await db.Appointments.AsNoTracking().SingleOrDefaultAsync(x => x.Id == appointment.Id, cancellationToken);
+        if (current is null || current.Status != (int)AppointmentStatus.Pending)
+            return AppointmentErrors.NotPending;
+
+        var claimed = await db.Appointments.Where(x => x.Id == appointment.Id && x.Status == (int)AppointmentStatus.Pending)
+            .ExecuteUpdateAsync(update => update.SetProperty(x => x.Status, (int)AppointmentStatus.Cancelled), cancellationToken);
+        if (claimed == 0) return AppointmentErrors.NotPending;
+        var released = await db.ScheduleSlots.Where(x => x.Id == current.ScheduleSlotId && x.Status == (int)ScheduleSlotStatus.Reserved)
+            .ExecuteUpdateAsync(update => update.SetProperty(x => x.Status, (int)ScheduleSlotStatus.Available), cancellationToken);
+        if (released == 0) return AppointmentErrors.NotPending;
+
+        await tx.CommitAsync(cancellationToken);
+        var attention = await db.Attentions.AsNoTracking().SingleOrDefaultAsync(x => x.AppointmentId == current.Id, cancellationToken);
+        return Appointment.Rehydrate(current.Id, current.ScheduleSlotId, current.PatientId, current.Reason,
+            AppointmentStatus.Cancelled, attention?.Diagnosis, attention?.Prescription);
+    }
+
     public async Task<Result<Appointment>> RegisterAttentionAsync(Appointment appointment, CancellationToken cancellationToken = default)
     {
         await using var tx = await db.Database.BeginTransactionAsync(IsolationLevel.ReadCommitted, cancellationToken);

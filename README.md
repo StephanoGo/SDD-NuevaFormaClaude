@@ -27,12 +27,12 @@ La solución utiliza **.NET 10**, **C# 13** y **Minimal APIs**, organizada en ca
 
 - **Domain**: entidades, reglas de negocio y errores clínicos.
 - **Application**: casos de uso y coordinación de operaciones.
-- **Infrastructure**: repositorios y persistencia en memoria desacoplada mediante interfaces.
-- **Api**: endpoints REST, publicación de archivos estáticos y traducción de errores a `ProblemDetails`.
-- **Web**: SPA ligera en HTML5, CSS y JavaScript estándar, sin dependencias NPM.
+- **Infrastructure**: repositorios y persistencia SQL Server/EF Core desacoplada mediante interfaces.
+- **Api**: endpoints REST y traducción de errores a `ProblemDetails`; sirve los archivos del frontend separado.
+- **Web**: SPA ligera en `src/CitasMedicas.Web/wwwroot`, HTML5, CSS y JavaScript estándar, sin dependencias NPM.
 - **Tests**: pruebas automatizadas con xUnit y FluentAssertions.
 
-La interfaz es servida por la propia API desde `wwwroot`, funciona desde 360 px hasta escritorio y está diseñada con contraste compatible con WCAG 2.1 AA.
+La interfaz fuente vive fuera del proyecto API y la API la publica desde `src/CitasMedicas.Web/wwwroot`; funciona desde 360 px hasta escritorio y está diseñada con contraste compatible con WCAG 2.1 AA.
 
 ## Principios del proyecto
 
@@ -49,12 +49,12 @@ El desarrollo sigue un ciclo SDD conciso para evitar suposiciones y mantener cal
 | --- | --- | --- |
 | Pacientes | Implementado | [Spec](specs/modulos/pacientes.md) |
 | Agenda | Implementado | [Spec](specs/modulos/agenda.md) |
-| Citas | Implementado | [Spec](specs/modulos/citas.md) |
+| Citas | Reservas, consultas y cancelación implementadas | [Spec](specs/modulos/citas.md) |
 | Atenciones | Registro básico implementado | [Spec](specs/modulos/atenciones.md) |
-| Historia Clínica | Propuesta pendiente de definición | [Spec](specs/modulos/historia-clinica.md) |
+| Historia Clínica | Consulta implementada | [Spec](specs/modulos/historia-clinica.md) |
 | Experiencia web | Criterios comunes | [Spec](specs/modulos/experiencia-web.md) |
 
-El [catálogo de specs](specs/README.md) reúne el ciclo y los módulos. Las entregas 001 y 002 se conservan como registros históricos compactos; los detalles anteriores pueden recuperarse del historial de Git.
+El [catálogo de specs](specs/README.md) reúne el ciclo y los módulos. Las entregas/features completas se numeran desde `specs/001-...` hasta `specs/006-...`; `specs/modulos/` contiene los resúmenes vigentes por módulo. Las entregas 001 y 002 conservan registros históricos compactos.
 
 ## Puesta en marcha
 
@@ -70,4 +70,4 @@ Una vez iniciado el servidor, la aplicación web queda disponible en la URL loca
 
 ## Alcance actual
 
-Esta versión se concentra en el flujo clínico esencial de una única sede y usa médicos precargados y persistencia en memoria. No incluye autenticación, gestión del catálogo de médicos, cancelación o reprogramación de citas, notificaciones ni facturación. La consulta longitudinal de historia clínica está propuesta, pero aún no implementada.
+Esta versión se concentra en el flujo clínico esencial de una única sede con persistencia SQL Server. Incluye gestión web de médicos/especialidades, consulta y cancelación de citas e historia clínica. No incluye autenticación, reprogramación, notificaciones ni facturación.

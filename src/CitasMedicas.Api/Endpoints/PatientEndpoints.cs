@@ -1,5 +1,6 @@
 using CitasMedicas.Api.Http;
 using CitasMedicas.Application.Patients;
+using CitasMedicas.Application.Appointments;
 
 namespace CitasMedicas.Api.Endpoints;
 
@@ -35,6 +36,10 @@ public static class PatientEndpoints
             var result = await service.SearchByLastNameAsync(lastName!, ct);
             return result.ToHttpResult(Results.Ok);
         });
+
+        group.MapGet("/{patientId:int}/clinical-history", async (
+            int patientId, ClinicalHistoryService service, CancellationToken ct) =>
+            (await service.GetByPatientAsync(patientId, ct)).ToHttpResult(Results.Ok));
 
         return group;
     }

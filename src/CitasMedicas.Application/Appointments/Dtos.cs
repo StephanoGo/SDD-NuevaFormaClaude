@@ -34,3 +34,11 @@ public sealed record AppointmentResponse(
     PatientSummaryResponse Patient,
     DoctorSummaryResponse Doctor,
     SlotSummaryResponse Slot);
+
+public sealed record ClinicalHistoryEntryResponse(
+    int AppointmentId,
+    string Reason,
+    string Diagnosis,
+    string? Prescription,
+    DoctorSummaryResponse Doctor,
+    SlotSummaryResponse Slot);

@@ -211,4 +211,35 @@ public class AppointmentServiceTests
         result.Value.Slot.StartTime.Should().Be("09:00");
         result.Value.Slot.EndTime.Should().Be("09:30");
     }
+
+    [Fact]
+    public async Task CancelAsync_ShouldCancelPendingAppointmentAndReleaseItsSlot()
+    {
+        var (patientId, slotId) = await CreatePatientAndSlotAsync();
+        var appointment = (await _appointmentService.ReserveAsync(slotId, patientId, "Consulta")).Value;
+
+        var result = await _appointmentService.CancelAsync(appointment.Id);
+
+        result.IsSuccess.Should().BeTrue();
+        result.Value.Status.Should().Be("Cancelled");
+        (await _appointmentRepo.GetSlotByIdAsync(slotId))!.Status.Should().Be(CitasMedicas.Domain.Scheduling.ScheduleSlotStatus.Available);
+        (await _appointmentService.CancelAsync(appointment.Id)).Error.Code.Should().Be("APPOINTMENT_NOT_PENDING");
+    }
+
+    [Fact]
+    public async Task ListAsync_ShouldFilterAppointmentsAndClinicalHistoryShouldContainOnlyAttended()
+    {
+        var (patientId, slotId) = await CreatePatientAndSlotAsync();
+        var appointment = (await _appointmentService.ReserveAsync(slotId, patientId, "Control clínico")).Value;
+        (await _appointmentService.RegisterAttentionAsync(appointment.Id, "Diagnóstico de prueba", "Receta de prueba")).IsSuccess.Should().BeTrue();
+
+        var appointments = await _appointmentService.ListAsync(patientId, doctorId: null, new DateOnly(2026, 10, 15));
+        var history = await _appointmentService.GetClinicalHistoryAsync(patientId);
+
+        appointments.IsSuccess.Should().BeTrue();
+        appointments.Value.Should().ContainSingle().Which.Status.Should().Be("Attended");
+        history.IsSuccess.Should().BeTrue();
+        history.Value.Should().ContainSingle().Which.Diagnosis.Should().Be("Diagnóstico de prueba");
+        (await _appointmentService.ListAsync(null, null, null)).Error.Code.Should().Be("VALIDATION_FORMAT");
+    }
 }

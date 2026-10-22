@@ -21,7 +21,7 @@ Sistema de gestión médica para registro de pacientes, agenda de médicos, prog
 - **Zona Horaria de la Clínica**: Manejo de fechas y horas locales basado en `System.TimeProvider` y la zona horaria `America/Lima`.
 
 ## SDD y módulos
-- Las specs activas por módulo viven en `specs/modulos/`; el catálogo está en `specs/README.md`.
+- Los resúmenes vigentes por módulo viven en `specs/modulos/`; los artefactos completos de features/entregas se organizan en `specs/NNN-<feature>/`. El catálogo está en `specs/README.md`.
 - Para toda feature significativa, seguir en orden `/speckit-specify` → `/speckit-plan` → `/speckit-checklist` → `/speckit-tasks` → `/speckit-analyze` → `/speckit-implement`.
 - Mantener artefactos por módulo y concisos: `spec.md` (clarifications, in/out of scope, RF y Given/When/Then), `plan.md` (arquitectura, modelo y contratos), checklists de requisitos y dominio/UX cuando corresponda, y `tasks.md` con dependencias y trazabilidad RF.
 - `/speckit-analyze` es una puerta de bloqueo: no implementar si detecta ambigüedades, contradicciones o RF sin cobertura en diseño, tareas y pruebas.

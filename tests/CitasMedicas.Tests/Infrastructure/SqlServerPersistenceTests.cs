@@ -218,6 +218,39 @@ public sealed class SqlServerPersistenceTests(SqlServerDatabaseFixture fixture) 
     }
 
     [Fact]
+    [Trait("RF", "RF-CIT-05")]
+    [Trait("RF", "RF-CIT-06")]
+    public async Task AppointmentQueryAndCancellation_OnSqlServer_FilterAndReleaseSlotAtomically()
+    {
+        fixture.EnsureAvailable();
+        var repository = fixture.CreateRepository(out var context);
+        await using var disposeContext = context;
+        var specialties = (ISpecialtyRepository)repository;
+        var specialty = (await specialties.AddAsync(new SpecialtyWriteRequest(fixture.Unique("Query/cancel")))).Value;
+        var doctor = (await ((IDoctorRepository)repository).AddAsync(new DoctorWriteRequest(
+            fixture.Unique("QUERY-CANCEL"), "Test", "Doctor", specialty.Id))).Value;
+        var patient = (await repository.AddAsync(Patient.Create(await fixture.NewDniAsync(), "Test",
+            fixture.Unique("Query patient"), "555", null).Value)).Value;
+        var domainDoctor = await ((IDoctorRepository)repository).GetByIdAsync(doctor.Id);
+        var slot = ScheduleSlot.Create(domainDoctor!, new DateOnly(2026, 10, 16),
+            TimeRange.Create(new TimeOnly(14, 0), new TimeOnly(14, 30)).Value,
+            TestBuilders.ReferenceNow, []).Value;
+        var storedSlot = (await repository.AddSlotAsync(slot)).Value;
+        var appointment = Appointment.Rehydrate(0, storedSlot.Id, patient.Id, fixture.Unique("Query visit"),
+            AppointmentStatus.Pending, null, null);
+        var storedAppointment = (await repository.ReserveAsync(storedSlot, appointment)).Value;
+
+        var listed = await repository.ListAppointmentsAsync(patient.Id, doctor.Id, new DateOnly(2026, 10, 16));
+        listed.Should().ContainSingle().Which.Id.Should().Be(storedAppointment.Id);
+        storedAppointment.Cancel().IsSuccess.Should().BeTrue();
+        var cancelled = await repository.CancelAsync(storedAppointment);
+        cancelled.IsSuccess.Should().BeTrue();
+        cancelled.Value.Status.Should().Be(AppointmentStatus.Cancelled);
+        (await repository.GetSlotByIdAsync(storedSlot.Id))!.Status.Should().Be(ScheduleSlotStatus.Available);
+        (await repository.CancelAsync(storedAppointment)).Error.Code.Should().Be("APPOINTMENT_NOT_PENDING");
+    }
+
+    [Fact]
     [Trait("RF", "RF-PER-02")]
     [Trait("RF", "RF-PER-09")]
     [Trait("RF", "RF-PER-12")]

@@ -11,7 +11,7 @@ Las funcionalidades se organizan por módulos: **Pacientes**, **Agenda**, **Cita
 5. `/speckit-analyze`: auditar coherencia y bloquear el avance si quedan contradicciones, requisitos sin contrato/tarea o decisiones ambiguas.
 6. `/speckit-implement`: tras aprobación de `analyze`, implementar en `src/` y `tests/`, ejecutar `dotnet build` y `dotnet test`, y marcar tareas solo cuando pasen.
 
-Los seis pasos se mantienen para cada feature; se reduce el volumen quitando duplicación, no suprimiendo controles. Ubicar los artefactos bajo `specs/modulos/<modulo>/<feature>/` y mantener los contratos compartidos en un único lugar. Actualizar documentación vigente que el cambio vuelva incorrecta. El contenido detallado anterior de las entregas 001 y 002 permanece en Git; sus archivos actuales son registros compactos.
+Los seis pasos se mantienen para cada feature; se reduce el volumen quitando duplicación, no suprimiendo controles. Las entregas/features se organizan en `specs/NNN-nombre/` (004 en adelante); `specs/modulos/` conserva los resúmenes vigentes por capacidad. Mantener los contratos compartidos en un único lugar y actualizar documentación vigente que el cambio vuelva incorrecta. El contenido detallado anterior de las entregas 001 y 002 permanece en Git; sus archivos actuales son registros compactos.
 
 La constitución está en [`.specify/memory/constitution.md`](../.specify/memory/constitution.md). Las specs activas por módulo son:
 
@@ -30,6 +30,9 @@ Las carpetas `001-citas-medicas-core` y `002-interfaz-web-citas` son registros c
 | :---: | :--- | :--- | :--- |
 | 001 | Core: pacientes, agenda, citas y registro de atención | [Registro](./001-citas-medicas-core/spec.md) | Entrega completada; detalle original en Git |
 | 002 | Interfaz web | [Registro](./002-interfaz-web-citas/spec.md) | Entrega completada; detalle original en Git |
-| 003 | Persistencia SQL Server para demo clínica | [Spec](./003-persistencia-sql-server/spec.md) | Análisis SDD listo para implementación acotada; T001/T002/T013 pendientes de verificación, T011 pendiente hasta migración posterior real |
+| 003 | Persistencia SQL Server para demo clínica | [Spec](./003-persistencia-sql-server/spec.md) | Persistencia implementada; T002 pendiente de base de pruebas vacía preexistente y T011 pendiente de migración posterior real |
+| 004 | Historia Clínica: consulta del historial | [Spec](./004-historia-clinica/spec.md) | Implementada; pruebas SQL de integración dependen de la base dedicada |
+| 005 | Citas: consulta y cancelación | [Spec](./005-citas-consulta-cancelacion/spec.md) | Implementada; pruebas SQL de integración dependen de la base dedicada |
+| 006 | Web: programación de médicos y especialidades | [Spec](./006-programacion-web/spec.md) | Implementada en frontend estático separado |
 
-Historia Clínica es una propuesta funcional pendiente de acordar y detallar antes de implementarse.
+Los detalles de diseño, contratos, checklists y tareas están en las carpetas 004–006. Los documentos por módulo enlazan a esas entregas.
