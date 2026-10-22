@@ -24,6 +24,8 @@ mono_crash.*
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+!/.opencode/skills/release/
+!/.opencode/skills/release/SKILL.md
 x64/
 x86/
 [Ww][Ii][Nn]32/
