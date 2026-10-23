@@ -34,5 +34,6 @@ Las carpetas `001-citas-medicas-core` y `002-interfaz-web-citas` son registros c
 | 004 | Historia Clínica: consulta del historial | [Spec](./004-historia-clinica/spec.md) | Implementada; pruebas SQL de integración dependen de la base dedicada |
 | 005 | Citas: consulta y cancelación | [Spec](./005-citas-consulta-cancelacion/spec.md) | Implementada; pruebas SQL de integración dependen de la base dedicada |
 | 006 | Web: programación de médicos y especialidades | [Spec](./006-programacion-web/spec.md) | Implementada en frontend estático separado |
+| 007 | Citas: reprogramación | [Spec](./007-reprogramacion-citas/spec.md) | Especificación aprobada; plan, modelo, contratos, checklists y tareas creados; implementación pendiente |
 
-Los detalles de diseño, contratos, checklists y tareas están en las carpetas 004–006. Los documentos por módulo enlazan a esas entregas.
+Los detalles de diseño, contratos, checklists y tareas están en las carpetas 004–007. Los documentos por módulo enlazan a esas entregas.

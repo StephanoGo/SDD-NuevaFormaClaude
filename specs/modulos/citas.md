@@ -1,6 +1,6 @@
 # Módulo: Citas
 
-**Estado:** reserva, consultas y cancelación implementadas. **Detalle:** [`005-citas-consulta-cancelacion`](../005-citas-consulta-cancelacion/spec.md). **Origen:** HU-03 / RF-015–021 de la entrega Core.
+**Estado:** reserva, consultas y cancelación implementadas. La reprogramación está especificada y aprobada, pero pendiente de implementación. **Detalle:** [`005-citas-consulta-cancelacion`](../005-citas-consulta-cancelacion/spec.md), [`007-reprogramacion-citas`](../007-reprogramacion-citas/spec.md). **Origen:** HU-03 / RF-015–021 de la entrega Core.
 
 ## Objetivo y alcance
 
@@ -15,6 +15,15 @@ Reservar un bloque disponible para un paciente con un motivo de consulta. El reg
 - La consulta por identificador devuelve cita, paciente, médico y horario asociados.
 - Listar citas mediante uno o más filtros de paciente, médico y fecha; al menos un filtro es obligatorio. Incluir citas de todos los estados, en orden cronológico de cita.
 - Cancelar solo citas pendientes; la operación atómica marca la cita Cancelled y libera su bloque a Available. No se cancelan citas atendidas ni ya canceladas.
+
+## Especificación aprobada pendiente de implementación
+
+- Recepción podrá reprogramar desde la web solo citas `Pending`, conservando el ID, paciente, médico y motivo de consulta. No se permite cambiar el médico.
+- El destino debe ser un bloque disponible del mismo médico y comenzar en el futuro según `America/Lima`. Se permite reprogramar aunque el horario de origen ya haya pasado.
+- La cita y la agenda cambian como una sola operación: se libera el bloque de origen y se reserva el destino; ante rechazo o fallo, se conservan intactos el estado y la reserva originales. Las solicitudes concurrentes no deben duplicar reservas ni sobrescribir cambios.
+- Cada cambio guarda horario anterior y nuevo, motivo obligatorio de hasta 500 caracteres y fecha/hora UTC. El detalle muestra el historial completo en orden cronológico local.
+- Ante timeout, la interfaz consulta el detalle para confirmar el estado y no reenvía automáticamente la operación.
+- **Fuente de verdad:** [spec 007 — Reprogramación de citas](../007-reprogramacion-citas/spec.md). Sus reglas detalladas, criterios de aceptación, contratos y tareas permanecen en esa feature; este resumen no indica que ya estén implementados.
 
 ## Requisitos y criterios
 
