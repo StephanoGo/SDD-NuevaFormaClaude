@@ -56,6 +56,8 @@ El desarrollo sigue un ciclo SDD conciso para evitar suposiciones y mantener cal
 
 El [catálogo de specs](specs/README.md) reúne el ciclo y los módulos. Las entregas/features completas se numeran desde `specs/001-...` hasta `specs/006-...`; `specs/modulos/` contiene los resúmenes vigentes por módulo. Las entregas 001 y 002 conservan registros históricos compactos.
 
+La [guía paso a paso de reprogramación de citas con Spec Kit](docs/guia-speckit-reprogramacion.md) incluye los comandos, prompts, aclaraciones y soluciones a los bloqueos encontrados durante la preparación de la entrega 007.
+
 ## Puesta en marcha
 
 Requisitos: SDK de .NET 10.
