@@ -1,232 +1,133 @@
-# Guía SDD: reprogramación de citas con Spec Kit
+# Guía de demostración SDD: reprogramación de citas
 
-Esta guía explica cómo desarrollar la próxima feature del proyecto mediante sus seis comandos de Spec Kit. Es una guía de trabajo: no constituye una spec aprobada ni indica que la función esté implementada.
+## Propósito y alcance
 
-## 1. Preparar el contexto
+Esta guía permite demostrar el flujo SDD del proyecto con la feature `007-reprogramacion-citas`, desde la necesidad hasta la implementación. Haz la prueba directamente en la copia didáctica y en la rama que ya está activa. **No crees ni cambies de rama.** No hagas commit, push, release ni despliegue. Antes de ejecutar cada comando, comprueba si el artefacto ya existe y usa el modo indicado en cada paso.
 
-Abre el asistente desde la raíz de `CitasMedicasApp`. Los comandos se escriben en el chat del asistente que tenga cargada la configuración del repositorio, no en PowerShell.
+La demostración tiene seis etapas SDD: `specify`, `plan`, `checklist`, `tasks`, `analyze` e `implement`. La preparación y el cierre son pasos operativos adicionales, no etapas SDD.
 
-El proyecto define los comandos en `.opencode/commands/` y sus instrucciones en `.claude/skills/speckit-*/SKILL.md`. Usa los nombres con guion que aparecen aquí. Si tu asistente no los muestra, verifica que haya cargado esa configuración; no supongas que ejecutar el texto en una terminal invoca Spec Kit.
+> No ejecutes comandos slash en PowerShell. Escríbelos en el chat del asistente que tenga abierto este repositorio y haya cargado sus comandos. Los comandos están definidos en `.opencode/commands/` y sus instrucciones detalladas en `.claude/skills/speckit-*/SKILL.md`.
 
-La siguiente entrega disponible al redactar esta guía es `007-reprogramacion-citas`. Comprueba `specs/README.md` antes de comenzar por si ya se asignó ese número.
+## Preparación: elegir correctamente el estado inicial
 
-El módulo propietario será Citas; Agenda y experiencia web serán módulos afectados. La afectación de Historia Clínica debe evaluarse según las reglas elegidas. Una rama propuesta es `codex/007-reprogramacion-citas`; registrar su nombre en la spec no demuestra que exista una rama Git.
+1. Abre la **copia didáctica sin implementación 007**, no el checkout donde la feature ya está implementada.
+2. Comprueba que el asistente está en la raíz del repositorio y revisa `git status --short --branch`.
+3. Confirma que no hay cambios de otra persona que puedan mezclarse con la demostración. No limpies ni descartes cambios automáticamente.
+4. Revisa `specs/README.md` y `specs/007-reprogramacion-citas/`.
+5. Comprueba en `src/` y `tests/` que esa copia no contenga la feature 007. La presencia de la spec no significa que la implementación exista.
+6. Conserva la rama actual durante toda la prueba. No crees ni cambies ramas. No hace falta iniciar un flujo Git para demostrar Spec Kit.
 
-## 2. Definir el comportamiento: `/speckit-specify`
+### Dos formas de presentar la demo
 
-Este paso establece **qué debe hacer la función** y cómo se comprobará. Copia este mensaje:
+- **Recorrido de resultados ya preparados (recomendado para una exposición corta):** inspecciona los artefactos que ya existen, explica qué produce cada etapa y ejecuta `analyze` para mostrar la puerta de calidad. No repitas comandos generadores sobre archivos ya preparados.
+- **Ejecución de extremo a extremo:** usa una copia didáctica preparada para iniciar la 007 sin sus artefactos SDD. Ejecuta los seis comandos, en orden, revisando cada resultado antes de continuar. Si un artefacto existe, no lo sobrescribas a ciegas: usa el recorrido de resultados o crea una copia limpia de demostración.
 
-```text
-/speckit-specify Crear la feature 007-reprogramacion-citas para permitir que recepción cambie el horario de una cita pendiente desde la web. Conservar el paciente y el motivo de consulta. El horario destino debe estar disponible y ser futuro según la zona horaria de la clínica. Liberar el bloque anterior y reservar el nuevo como una sola operación: si el cambio falla, conservar intacta la cita original. Rechazar la reprogramación de citas atendidas o canceladas y evitar reservas duplicadas ante solicitudes concurrentes. Quiero trazabilidad del cambio de horario y de su motivo. Revisa las specs y el código existentes, pregunta por las decisiones de negocio pendientes y crea únicamente el spec.md de esta etapa. Usa IDs de requisitos que no colisionen con los RF-CIT existentes. Propón la rama codex/007-reprogramacion-citas.
-```
+En el estado documentado actualmente, `spec.md`, `plan.md`, `data-model.md`, contratos, checklists y `tasks.md` ya existen. `tasks.md` tiene las tareas sin marcar y el catálogo describe la feature como pendiente. Por lo tanto, en ese estado corresponde el **recorrido de resultados preparados**, no afirmar que se crea todo desde cero.
 
-El texto anterior propone el alcance inicial. Revisa las reglas y apruébalas en la spec antes de tratarlas como definitivas.
+## Feature de la demostración
 
-### Decisiones que debes resolver
+- **Nombre:** `007-reprogramacion-citas`.
+- **Módulo propietario:** Citas.
+- **Módulos afectados:** Agenda, Atenciones y experiencia web.
+- **Rama:** la prueba se ejecuta sobre la rama que ya está activa. No crear ni cambiar de rama. Si la spec contiene un nombre de rama propuesto, trátalo como metadato descriptivo y no como una instrucción Git.
+- **Necesidad:** permitir que recepción reprograme una cita pendiente desde la web, conservando paciente, motivo de consulta e ID; reservar el destino y liberar el origen de forma atómica; evitar conflictos y registrar el historial.
 
-El asistente debe aclarar contigo, como mínimo:
+Las reglas de negocio aprobadas están en `specs/007-reprogramacion-citas/spec.md`. No uses respuestas históricas como si fueran preguntas abiertas ni modifiques reglas aprobadas para hacer la demo más sencilla.
 
-- ¿Se permite cambiar de médico? Si se permite, ¿debe tener la misma especialidad?
-- ¿Se puede reprogramar una cita cuyo horario original ya pasó?
-- ¿El motivo del cambio es obligatorio? ¿Qué límites tendrá?
-- ¿La cita conserva su identificador? ¿Dónde se consulta el registro de cambios y qué información muestra?
-- ¿Se permiten varias reprogramaciones de una misma cita?
-- ¿Qué respuesta recibe el operador si elige el mismo bloque o si otra persona modifica la cita mientras confirma?
+## Etapa 1 — Definir el comportamiento: `/speckit-specify`
 
-No copies respuestas por defecto sin revisarlas. Las decisiones aprobadas deben quedar en `spec.md`; mientras existan preguntas que cambien el comportamiento, la spec permanece en borrador.
+**Objetivo:** establecer qué debe hacer la feature y cómo se comprobará. Solo crea o modifica `spec.md`.
 
-### Respuestas seleccionadas para tener en cuenta
-
-Según las opciones compartidas por el usuario, usa estas respuestas al resolver las aclaraciones de esta feature y regístralas en `spec.md`:
-
-| Tema | Respuesta seleccionada |
-| --- | --- |
-| Médico | Conservar el mismo médico. |
-| Cita pasada | Sí, permitir reprogramar una cita cuyo horario original ya pasó, siempre que siga pendiente y el destino sea futuro. |
-| Motivo del cambio | Obligatorio, con un máximo de 500 caracteres. |
-| Trazabilidad | Conservar el ID de la cita y mantener un historial de reprogramaciones. |
-| Conflictos | Rechazar la operación sin cambios; conservar la cita y su reserva original. |
-
-Estas respuestas no resuelven por sí solas dónde se consultará el historial, qué información mostrará ni si habrá un límite de reprogramaciones. Aclara esos puntos durante `specify` antes de avanzar al plan.
-
-### Resultado esperado
-
-`specs/007-reprogramacion-citas/spec.md`, con solicitud original, módulo propietario, módulos afectados, metadatos, alcance, fuera de alcance, aclaraciones, RF con IDs estables y criterios Dado/Cuando/Entonces vinculados a esos RF.
-
-Ejemplo de criterio para revisar:
-
-> Dada una cita pendiente y un horario destino que otro operador acaba de reservar, cuando recepción confirma el cambio, entonces el sistema rechaza la reprogramación y conserva el horario y la reserva originales.
-
-Antes de avanzar, comprueba que las respuestas a las aclaraciones estén registradas y que los criterios cubran éxito, errores y concurrencia.
-
-## 3. Diseñar la solución: `/speckit-plan`
-
-Con las decisiones funcionales resueltas, copia:
+Si la spec no existe en tu copia limpia, pega este prompt:
 
 ```text
-/speckit-plan specs/007-reprogramacion-citas. Diseña la solución conforme al spec.md y la constitución del proyecto. Revisa el modelo de citas y bloques, los repositorios, la persistencia SQL Server y la web existentes. Define cómo proteger el cambio completo frente a fallos y concurrencia, incluyendo reprogramación contra reserva, cancelación, atención y otra reprogramación. Documenta modelo de datos, impacto de migraciones, contratos HTTP/JSON y de repositorio, errores y estrategia de pruebas. Reutiliza los contratos compartidos por referencia. No modifiques src/ ni tests/.
+/speckit-specify Crear la feature 007-reprogramacion-citas para permitir que recepción cambie el horario de una cita pendiente desde la web. Conservar el paciente y el motivo de consulta. El horario destino debe estar disponible y ser futuro según la zona horaria de la clínica. Liberar el bloque anterior y reservar el nuevo como una sola operación: si el cambio falla, conservar intacta la cita original. Rechazar la reprogramación de citas atendidas o canceladas y evitar reservas duplicadas ante solicitudes concurrentes. Quiero trazabilidad del cambio de horario y de su motivo. Revisa las specs y el código existentes, pregunta por las decisiones de negocio pendientes y crea únicamente el spec.md de esta etapa. Usa IDs de requisitos que no colisionen con los RF-CIT existentes. No propongas ni crees una rama Git; registra que la demostración se ejecuta en la rama actual.
+
+Usa estas decisiones para responder las aclaraciones de negocio y regístralas en `spec.md`: conserva el mismo médico; permite reprogramar una cita pendiente aunque el horario original haya pasado si el destino es futuro; exige motivo de cambio de texto libre de hasta 500 caracteres; conserva el ID y muestra el historial completo; registra el nombre de recepción enviado en la solicitud; ante cita no pendiente responde con `APPOINTMENT_NOT_PENDING`; si el horario original ya pasó, permite reprogramar mientras la cita siga pendiente y el destino sea futuro; muestra el historial en el detalle de la cita, ordenado del cambio más reciente al más antiguo; rechaza conflictos sin cambiar cita ni reserva; ante timeout consulta el detalle sin reenviar la operación; guarda el timestamp en UTC y lo muestra en `America/Lima`. Si el asistente pregunta algo distinto que cambie el comportamiento, no inventes una respuesta: consúltala.
 ```
 
-Resultados esperados:
+**Antes de avanzar:** revisa que la spec mantenga la solicitud original, identifique módulo propietario y afectados, tenga alcance/fuera de alcance, RF con IDs estables y criterios Dado/Cuando/Entonces. Resuelve con el usuario cualquier decisión que cambie el comportamiento; no infieras respuestas. La spec debe seguir en borrador mientras queden aclaraciones funcionales abiertas.
 
-- `plan.md`: arquitectura, capas afectadas, decisiones técnicas y verificación.
-- `data-model.md`: datos, relaciones, invariantes e impacto en persistencia.
-- `contracts/`: interfaces nuevas o modificadas, con solicitudes, respuestas y errores precisos.
+Las aclaraciones funcionales ya registradas en `spec.md` incluyen: mismo médico; permitir origen pasado si la cita sigue pendiente; destino con inicio estrictamente futuro en `America/Lima`; motivo obligatorio de texto libre, máximo 500 caracteres; mismo ID e historial completo visible, con cambios múltiples; rechazo sin mutación ante conflictos; tras timeout consultar el detalle sin reenviar la escritura; timestamp guardado UTC y presentado en hora clínica. Las respuestas adicionales de esta sesión de `specify` —operador registrado en la solicitud, historial en el detalle y orden más reciente primero— deben incorporarse a la spec y a sus artefactos dependientes antes del análisis final.
 
-Aquí se decide la implementación técnica. No agregues un endpoint o un campo definitivo en la guía como sustituto del diseño. Si el plan descubre una decisión funcional faltante, resuélvela primero en la spec.
+En la sesión mostrada durante esta demo, `specify` también preguntó por el operador, el error de cita no pendiente, el horario original pasado, la ubicación del historial y su orden. Las respuestas elegidas fueron: registrar el nombre de recepción enviado en la solicitud; usar `APPOINTMENT_NOT_PENDING`; permitir el cambio si la cita sigue pendiente aunque el horario original haya pasado, siempre que el destino sea futuro; mostrar el historial en el detalle de la cita; y ordenar el historial con el cambio más reciente primero.
 
-## 4. Revisar calidad: `/speckit-checklist`
+Estas dos últimas decisiones de historial y la captura del operador amplían o precisan la spec aprobada. Regístralas como aclaraciones explícitas en `spec.md` y sincroniza los escenarios de aceptación, `data-model.md`, `plan.md`, contratos, checklists y tareas antes de volver a ejecutar `analyze`. En particular, el modelo y el contrato actuales dicen orden ascendente (más antiguo primero), lo que contradice la respuesta elegida: cámbialos a orden descendente por `ChangedAt` y define un desempate estable por ID. Actualiza también consultas, interfaz y pruebas planificadas para el orden nuevo. No presentes la decisión nueva como implementada hasta que el código y las pruebas lo demuestren. Mantén el límite de 500 caracteres ya aprobado para el motivo.
+
+**Salida esperada:** `specs/007-reprogramacion-citas/spec.md`.
+
+## Etapa 2 — Diseñar la solución: `/speckit-plan`
+
+**Precondición:** spec revisada y sin decisiones funcionales abiertas.
 
 ```text
-/speckit-checklist specs/007-reprogramacion-citas. Audita los requisitos y crea checklists de dominio y UX centrados en reprogramación, integridad de la reserva, concurrencia, confirmación del cambio y mensajes de error. Vincula los hallazgos con los RF y distingue preguntas pendientes de defectos. Mantén identificadas como propuestas las 16 comprobaciones formales mientras no hayan sido confirmadas por el propietario del proyecto.
+/speckit-plan specs/007-reprogramacion-citas. Diseña la solución conforme al spec.md aprobado y la constitución del proyecto. Revisa el modelo de citas y bloques, repositorios, persistencia SQL Server y la web existentes. Define cómo proteger la operación frente a fallos y concurrencia, incluyendo carreras con reserva, cancelación, atención y otra reprogramación. Documenta arquitectura, modelo de datos, impacto de migraciones, contratos HTTP/JSON y de repositorio, errores y estrategia de pruebas. Reutiliza los contratos compartidos por referencia. No modifiques src/ ni tests/.
 ```
 
-Resultado esperado: `checklists/requirements.md` y checklists de dominio/UX según corresponda. Las instrucciones locales indican que la lista formal de 16 comprobaciones es una línea base propuesta, no una lista original ya confirmada.
+**Revisa las salidas:** `plan.md`, `data-model.md` y `contracts/` cuando cambien interfaces. Comprueba que el diseño no introduzca comportamiento que no esté aprobado por la spec y que siga la constitución. Si el diseño revela una decisión funcional pendiente, vuelve a `specify` para resolverla antes de continuar.
 
-Revisa especialmente que un fallo conserve la cita original, que no queden dos reservas activas por el cambio y que la interfaz permita comprender el horario anterior y el destino antes de confirmar.
+## Etapa 3 — Revisar calidad: `/speckit-checklist`
 
-Corrige los artefactos de la etapa correspondiente cuando aparezcan ambigüedades. Un checklist revisa la calidad de los requisitos; no demuestra por sí solo que el código funcione.
-
-## 5. Desglosar el trabajo: `/speckit-tasks`
+**Precondición:** existen spec y artefactos de plan.
 
 ```text
-/speckit-tasks specs/007-reprogramacion-citas. Genera tareas atómicas y ordenadas por dependencia para dominio, aplicación, persistencia, API, interfaz web y pruebas según el diseño aprobado. Vincula cada tarea con sus RF y criterios de aceptación. Incluye migraciones si el modelo las requiere, actualización de documentación vigente y verificación final con dotnet build y dotnet test. Deja todas las tareas sin marcar y no modifiques src/ ni tests/.
+/speckit-checklist specs/007-reprogramacion-citas. Audita la calidad de los requisitos y crea checklists de dominio y UX centrados en reprogramación, integridad de la reserva, concurrencia, confirmación del cambio y mensajes de error. Vincula cada observación con RF y escenarios. Distingue decisiones de negocio pendientes, defectos documentales y verificaciones que solo podrán hacerse durante implementación. Mantén identificadas como propuestas las 16 comprobaciones formales mientras no hayan sido confirmadas por el propietario del proyecto. No modifiques src/ ni tests/.
 ```
 
-Resultado esperado: `tasks.md`, con casillas pendientes, dependencias y trazabilidad. Cada RF debe tener trabajo que lo implemente y pruebas planificadas que verifiquen su comportamiento.
+**Revisa las salidas:** `checklists/requirements.md` y, si corresponde, `domain.md` y `ux.md`. La lista formal de 16 puntos es una línea base propuesta en las instrucciones locales; no la presentes como una norma externa ya aprobada. Un checklist no demuestra que la implementación funcione.
 
-### Aclaraciones surgidas durante `/speckit-tasks`
+## Etapa 4 — Desglosar el trabajo: `/speckit-tasks`
 
-Durante esta etapa, el asistente presentó cuatro preguntas adicionales. El usuario compartió estas respuestas seleccionadas para documentarlas:
-
-| Tema | Respuesta seleccionada |
-| --- | --- |
-| Futuro | Inicio futuro: el inicio del horario destino debe ser posterior al momento actual. |
-| Timeout | Recargar detalle. |
-| Origen inconsistente | Rechazar y reportar. |
-| Auditoría | Hora clínica. |
-
-Para interpretar estas respuestas junto con el contexto de la feature:
-
-- **Futuro:** evaluar el inicio del bloque destino con la hora de la clínica, no únicamente su fecha o su hora de fin.
-- **Timeout:** recargar el detalle de la cita para consultar su estado antes de decidir cómo continuar; una respuesta agotada por tiempo no confirma por sí sola si el cambio se guardó.
-- **Origen inconsistente:** rechazar la reprogramación y reportar la inconsistencia. Precisar en los contratos qué condiciones constituyen esa inconsistencia y cómo se informa.
-- **Auditoría:** usar la hora de la clínica (`America/Lima`) para la fecha y hora del registro del cambio; documentar su representación técnica en el modelo y los contratos.
-
-Si estas decisiones aún no están en los artefactos, actualizar `spec.md` y después el plan, el modelo, los contratos y los checklists afectados antes de completar las tareas. Las tareas deben derivarse de esas decisiones documentadas. Ejecutar `/speckit-analyze` sobre el conjunto actualizado.
-
-## 6. Validar coherencia: `/speckit-analyze`
+**Precondición:** spec, plan y checklists coherentes; no hay decisiones de negocio abiertas.
 
 ```text
-/speckit-analyze specs/007-reprogramacion-citas. Contrasta spec, plan, modelo de datos, contratos, checklists y tareas con la constitución y el código existente. Verifica cobertura de todos los RF, decisiones de negocio resueltas y consistencia de estados, errores, persistencia y concurrencia. Devuelve BLOCKED con hallazgos concretos o READY FOR IMPLEMENTATION. No implementes código.
+/speckit-tasks specs/007-reprogramacion-citas. Genera tareas atómicas y ordenadas por dependencia para dominio, aplicación, persistencia, API, interfaz web y pruebas según el diseño aprobado. Vincula cada tarea con sus RF y criterios de aceptación. Incluye migraciones si corresponden, actualización de documentación vigente y verificación final con dotnet build y dotnet test. Incluye pruebas de atomicidad y concurrencia reales de SQL Server según el plan. Deja todas las tareas sin marcar y no modifiques src/ ni tests/.
 ```
 
-Resultados posibles:
+**Revisa la salida:** `tasks.md`. Cada RF debe tener tareas de implementación y pruebas; las tareas deben estar sin marcar porque todavía no se han realizado.
 
-| Resultado | Siguiente acción |
-| --- | --- |
-| `BLOCKED` | Corregir los artefactos señalados, actualizar los dependientes y volver a ejecutar el análisis. |
-| `READY FOR IMPLEMENTATION` | Continuar con la implementación de las tareas analizadas. |
+## Etapa 5 — Validar coherencia: `/speckit-analyze`
 
-Un ejemplo de bloqueo sería exigir un historial de reprogramaciones en la spec sin incluir su persistencia en el diseño ni tareas que lo implementen y prueben.
-
-Conserva el resultado del análisis; las instrucciones locales no fijan un nombre obligatorio de archivo para él. Las entregas anteriores usan `analyze.md`. Si cambias el comportamiento o el diseño después de un análisis favorable, actualiza los documentos afectados y vuelve a analizar antes de implementar.
-
-### Bloqueo encontrado en esta entrega y cómo resolverlo
-
-Al ejecutar el análisis de la entrega 007 se reportó que los RF-REPRO-01–06 tenían criterios, diseño, contratos, tareas y pruebas planificadas, pero había inconsistencias documentales y la spec seguía pendiente de aprobación. La revisión de los archivos confirmó:
-
-| Archivo | Situación observada | Corrección |
-| --- | --- | --- |
-| `spec.md` | Aclaraciones resueltas, pero estado de borrador pendiente de aprobación. | Registrar la aprobación explícita del propietario cuando la otorgue. |
-| `checklists/requirements.md` | Conserva preguntas sobre futuro, timeout y origen inconsistente; también observaciones antiguas sobre auditoría y refresco de interfaz. | Reevaluar cada observación contra la spec y el plan actuales; cerrar las resueltas con referencias. |
-| `checklists/domain.md` | Sigue preguntando por cuatro decisiones ya registradas. | Sustituir preguntas resueltas por las decisiones vigentes y conservar pendientes las verificaciones de implementación. |
-| `checklists/ux.md` | Declara pendientes la política de timeout y la zona horaria visual. | Reflejar consulta del detalle sin reintento automático y presentación en `America/Lima`. |
-
-La fila 16 de requisitos marca como fallo usar `America/Lima`. Esa zona ya es una política de Agenda y una decisión funcional confirmada: mencionarla no es, por sí sola, un detalle técnico innecesario. Tampoco es obligatorio copiar los códigos HTTP del contrato dentro de los RF para demostrar que un rechazo es coherente; se debe comprobar que el resultado funcional y su traducción HTTP sean compatibles.
-
-Las 16 comprobaciones deben permanecer identificadas como **línea base propuesta** mientras el propietario no las confirme. El propio checklist indica que esa confirmación no bloquea por sí sola la feature. No confundir este estado con preguntas funcionales abiertas ni con pruebas de implementación pendientes.
-
-Hay una precisión que conviene revisar: «cualquier fallo conserva la cita original» se refiere a una operación rechazada o una transacción fallida. Perder la respuesta tras un commit exitoso no deshace el cambio; por eso la política confirmada exige consultar el detalle tras timeout. Expresar esta distinción de forma coherente en los criterios y documentos relacionados.
-
-#### Mensaje para corregir el bloqueo
-
-Si estás conforme con el comportamiento descrito en la spec, puedes enviar este mensaje al asistente. La primera frase constituye tu aprobación explícita de esa especificación; no implica confirmar la línea base propuesta de 16 comprobaciones.
+**Precondición:** están presentes todos los artefactos requeridos. Este paso se puede repetir después de corregir hallazgos.
 
 ```text
-Apruebo funcionalmente la spec specs/007-reprogramacion-citas/spec.md con las aclaraciones ya registradas: mismo médico, origen pasado permitido si la cita sigue pendiente, destino con inicio estrictamente futuro en America/Lima, motivo obligatorio de hasta 500 caracteres, mismo ID e historial completo con cambios múltiples, rechazo sin cambios ante conflictos u origen inconsistente, consulta del detalle tras timeout sin reintento automático y auditoría UTC presentada en hora de clínica.
-
-Corrige únicamente los artefactos SDD de esta feature antes de implementar:
-1. Registra mi aprobación explícita y actualiza el estado de spec.md.
-2. Sincroniza checklists/requirements.md, domain.md y ux.md con spec.md, plan.md, data-model.md y contracts/rescheduling-contracts.md. Cierra preguntas resueltas con referencias y conserva los hallazgos que sigan siendo reales. No marques verificaciones de implementación o pruebas como realizadas.
-3. Reevalúa las filas 2, 6, 7, 14 y 16 de requirements.md. America/Lima es una política de negocio vigente; no la clasifiques como defecto por sí sola. Comprueba la atomicidad y verificabilidad de los RF sin renumerarlos innecesariamente.
-4. Distingue rechazo/rollback de pérdida de respuesta después de un commit: un timeout no demuestra que la operación haya fallado; la web consulta el detalle sin repetir la escritura. Haz coherente esa distinción en los artefactos y añade criterios explícitos para las aclaraciones si falta cobertura.
-5. Revisa los defectos antiguos sobre códigos HTTP, fecha/hora y refresco web contra los documentos actuales. Cierra los ya resueltos sin duplicar contratos dentro de los RF; corrige cualquier discrepancia real que permanezca.
-6. Mantén las 16 comprobaciones identificadas como línea base propuesta, sin afirmar que las he confirmado. Su falta de confirmación no debe bloquear por sí sola la feature.
-7. Actualiza las tareas solo si estas correcciones afectan su cobertura; déjalas sin marcar. No modifiques src/ ni tests/ y no implementes todavía.
-Informa los cambios documentales y los hallazgos pendientes.
+/speckit-analyze specs/007-reprogramacion-citas. Contrasta spec, plan, modelo de datos, contratos, checklists y tareas con la constitución, los módulos afectados y el código existente. Comprueba que toda decisión funcional esté resuelta; cada RF tenga aceptación, diseño/contrato compatible, tarea y pruebas planificadas; y que estados, errores, términos, persistencia y concurrencia sean coherentes. Devuelve BLOCKED con hallazgos concretos y artefacto/RF que debe corregirse, o READY FOR IMPLEMENTATION con notas no bloqueantes. No modifiques src/ ni tests/.
 ```
 
-Después de revisar la corrección, ejecuta de nuevo:
+**Si devuelve `BLOCKED`:** no implementes. Corrige solo los artefactos indicados, actualiza sus dependientes y vuelve a ejecutar este análisis. No conviertas preferencias de estilo en bloqueos ni marques como hecho algo que aún no se verificó.
+
+**Si devuelve `READY FOR IMPLEMENTATION`:** guarda el resultado en un artefacto de análisis dentro de `specs/007-reprogramacion-citas/` (por ejemplo `analyze.md`) o conserva la salida de forma visible para la demo. Registra la fecha/revisión analizada. Continúa solo si el análisis corresponde a los artefactos actuales y no se cambió después el comportamiento o diseño.
+
+## Etapa 6 — Implementar y verificar: `/speckit-implement`
+
+**Puerta obligatoria:** el último análisis debe ser `READY FOR IMPLEMENTATION`. Si no, detente en la etapa anterior.
 
 ```text
-/speckit-analyze specs/007-reprogramacion-citas
+/speckit-implement specs/007-reprogramacion-citas. Implementa las tareas pendientes respaldadas por los requisitos aprobados y el último análisis READY FOR IMPLEMENTATION. Incluye las pruebas de aceptación y concurrencia previstas. Ejecuta dotnet build y dotnet test desde la raíz. Marca una tarea completa únicamente cuando la implementación y sus pruebas relevantes pasen; informa tareas pendientes, resultados y comprobaciones que no pudiste ejecutar. Actualiza la documentación vigente que el cambio vuelva incorrecta. No hagas commit ni publiques cambios.
 ```
 
-Solo si el nuevo resultado es `READY FOR IMPLEMENTATION`, continúa con el paso 7. Corregir los checklists no garantiza ese resultado: el análisis debe comprobar de nuevo el conjunto de documentos.
+Durante la implementación, no presentes una prueba SQL omitida por falta de base dedicada como exitosa. Verifica además el recorrido web de búsqueda, selección de destino, revisión, confirmación, actualización de disponibilidad e historial; comprueba también el caso de conflicto.
 
-### Segundo bloqueo: faltan escenarios explícitos de aceptación
+## Cierre de la demostración
 
-Después de registrar la aprobación y sincronizar los checklists, el análisis volvió a devolver `BLOCKED`. El hallazgo restante fue la falta de dos escenarios Dado/Cuando/Entonces: las reglas estaban aprobadas y contempladas en el diseño, pero no figuraban explícitamente en la tabla de aceptación.
+1. Resume qué artefactos se crearon o corrigieron en cada etapa.
+2. Indica el resultado de análisis y qué revisión/estado se analizó.
+3. Si se implementó, reporta el resultado real de `dotnet build` y `dotnet test`, las tareas completadas y pendientes, y cualquier prueba SQL bloqueada.
+4. Actualiza `specs/README.md`, README y resúmenes de módulo solo donde su descripción haya quedado desactualizada. Describe el estado real del checkout actual.
+5. No crees ni cambies de rama. No hagas commit, push, release ni despliegue durante esta prueba.
 
-| RF | Cobertura faltante |
-| --- | --- |
-| RF-REPRO-03 | Rechazo sin reparación ni cambios cuando el bloque de origen falta o no está `Reserved`. |
-| RF-REPRO-06 | Consulta del detalle tras timeout, sin reintentar automáticamente la escritura. |
+## Anexo — Incidencias históricas útiles para explicar `analyze`
 
-La aprobación de la spec no sustituye esos criterios verificables. Para una exposición, puede resolverse este hallazgo en una sola intervención: añadir ambos escenarios, enlazar su cobertura y repetir el análisis, sin recorrer de nuevo todas las etapas desde cero.
+En la preparación de esta feature hubo dos ciclos de análisis bloqueado. Úsalos como ejemplos didácticos, no como estado necesariamente vigente:
 
-#### Prompt para resolver el segundo bloqueo
+1. **Primer bloqueo documental:** checklists desactualizados respecto de decisiones aprobadas, errores de clasificación de `America/Lima`, y necesidad de distinguir rollback de una respuesta perdida después de un commit. La corrección fue sincronizar los artefactos y añadir cobertura verificable sin dar por confirmada la línea base de 16 puntos.
+2. **Segundo bloqueo de aceptación:** faltaban escenarios explícitos para rechazar un bloque de origen inconsistente y para consultar el detalle tras timeout sin reenviar la escritura. Se añadieron escenarios vinculados a RF-REPRO-03 y RF-REPRO-06 y se enlazaron con tareas/checklists.
 
-```text
-Resuelve en una sola intervención los dos hallazgos pendientes de specs/007-reprogramacion-citas, manteniendo las reglas aprobadas.
-
-Añade a la tabla de aceptación de spec.md estos escenarios:
-
-1. RF-REPRO-03: Dada una cita pendiente cuyo bloque de origen no existe o no está Reserved, cuando recepción solicita reprogramarla, entonces el sistema rechaza la operación, reporta la inconsistencia y no modifica la cita, los bloques ni el historial, sin reparar datos automáticamente.
-
-2. RF-REPRO-06: Dada una solicitud de reprogramación cuya respuesta se pierde o agota el tiempo de espera, cuando la interfaz detecta esa situación, entonces consulta nuevamente el detalle de la cita sin reenviar automáticamente la reprogramación y presenta el estado confirmado. Si la consulta también falla, informa que no pudo confirmar el resultado sin afirmar éxito ni fracaso de la operación.
-
-Enlaza ambos escenarios con las tareas y verificaciones existentes de origen inconsistente y timeout. Amplía esas tareas solo si falta cobertura y sincroniza los checklists o contratos afectados. No marques pruebas como ejecutadas ni modifiques src/ o tests/.
-
-Después ejecuta /speckit-analyze specs/007-reprogramacion-citas. Si los hallazgos quedaron resueltos y no hay otros bloqueos reales, devuelve READY FOR IMPLEMENTATION. No bloquees por preferencias de redacción ni por las 16 comprobaciones que siguen como línea base propuesta. Si existe otro bloqueo real, identifica el requisito y la contradicción exacta.
-```
-
-Durante la exposición, muestra el hallazgo, la corrección de los dos escenarios y el nuevo resultado del análisis como evidencia del control SDD. El tiempo limitado no convierte un resultado bloqueado en aprobado; el objetivo de este prompt es cerrar la cobertura concreta sin iteraciones documentales innecesarias.
-
-## 7. Implementar y verificar: `/speckit-implement`
-
-Ejecuta este comando únicamente cuando el último análisis sea `READY FOR IMPLEMENTATION`:
-
-```text
-/speckit-implement specs/007-reprogramacion-citas. Implementa las tareas pendientes respaldadas por los requisitos aprobados. Incluye pruebas de aceptación y concurrencia previstas en los artefactos. Ejecuta dotnet build y dotnet test desde la raíz. Marca tareas completas únicamente cuando ambas comprobaciones pasen e informa tareas pendientes, errores y comprobaciones que no se pudieron ejecutar. Actualiza la documentación vigente afectada. No hagas commit ni publiques cambios.
-```
-
-Este es el único comando del flujo autorizado a cambiar código en `src/` y `tests/`.
-
-Si las pruebas SQL requieren una base dedicada, documenta el requisito y verifica su disponibilidad. No presentes pruebas omitidas o una dependencia no disponible como validación satisfactoria de SQL.
-
-Además de las comprobaciones automatizadas, verifica el flujo web definido: localizar cita, elegir destino, revisar y confirmar, comprobar el nuevo horario y comprobar que el anterior vuelve a estar disponible. Ante un conflicto, debe verse un error comprensible y conservarse la cita original conforme a la spec.
-
-## 8. Cerrar la entrega
-
-Revisa que los RF estén cubiertos, las tareas completadas tengan evidencia y los resultados de compilación y pruebas estén informados. Actualiza `specs/README.md`, el resumen de Citas, Agenda y cualquier otra documentación que haya quedado incorrecta con el cambio.
-
-La actualización del catálogo debe reflejar el estado real: borrador, diseñada o implementada según corresponda. Crear documentación no equivale a terminar la feature.
+Los prompts exactos de esos arreglos se conservan en el historial Git de esta guía. Para una exposición normal basta mostrar el hallazgo, el artefacto corregido, el nuevo análisis y la razón por la que no se avanzó a implementar antes de tener una puerta favorable.
 
 ## Secuencia rápida
 
-Ejecuta un comando por vez y revisa su resultado antes del siguiente:
+Para una ejecución completa sobre una copia de demo preparada desde cero, ejecutar **un comando por vez en la rama actual**, revisar la salida y respetar sus precondiciones. No crees una rama para la prueba:
 
 ```text
 /speckit-specify [necesidad y alcance de la reprogramación]
@@ -237,4 +138,4 @@ Ejecuta un comando por vez y revisa su resultado antes del siguiente:
 /speckit-implement specs/007-reprogramacion-citas
 ```
 
-Las aclaraciones se resuelven durante `specify` en este repositorio. No se necesita volver a crear la constitución para esta feature; se aplica la existente en `.specify/memory/constitution.md`.
+Si la copia ya contiene los artefactos documentales, no pegues la secuencia rápida completa: empieza revisando el estado preparado y ejecuta `analyze`. La constitución vigente está en `.specify/memory/constitution.md`; no hay que regenerarla para esta feature.
